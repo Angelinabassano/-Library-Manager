@@ -16,3 +16,15 @@ class BookController:
         except Exception as e:
             return {'status_code': 500, 'response': f'Error verifying data: {e}'}
 
+    def create_book(self, book_id, title, author, category_id, stock):
+        try:
+            self.book_model.create_book(book_id, title, author, category_id, stock)
+            return {
+                'result': f'{book_id, title, author, category_id, stock}'
+            }
+        except Exception as e:
+            return {
+                'status_code': 500,
+                'response': f'Error when creating the book: {e}'
+            }
+
