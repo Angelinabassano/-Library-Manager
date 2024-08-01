@@ -28,3 +28,12 @@ class BookController:
                 'response': f'Error when creating the book: {e}'
             }
 
+    def get_book_by_id(self, book_id):
+        try:
+            book = self.book_model.get_book_by_id(book_id)
+            if book:
+                return {'status_code': 200, 'response': 'Book_id found', 'result': book}
+            else:
+                return {'status_code': 404, 'response': 'Book_id not found'}
+        except Exception as e:
+            return {'status_code': 500, 'response': f'Error finding book_id: {e}'}
