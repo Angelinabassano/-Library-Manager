@@ -47,3 +47,13 @@ class BookController:
                 return {'status_code': 404, 'response': 'Book not found'}
         except Exception as e:
             return {'status_code': 500, 'response': f'Error finding the title of the Book: {e}'}
+
+    def get_book_by_author(self, author):
+        try:
+            book = self.book_model.get_book_by_author(author)
+            if book:
+                return {'status_code': 200, 'response': 'Book found', 'result': book}
+            else:
+                return {'status_code': 404, 'response': 'Book not found'}
+        except Exception as e:
+            return {'status_code': 500, 'response': f'Error finding author of the Book: {e}'}
