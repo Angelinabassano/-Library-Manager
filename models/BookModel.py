@@ -37,3 +37,11 @@ class BookModel:
             return self.db.execute_query(query, params)
         except Exception as e:
             return f'Error finding the title of the Book: {e}'
+
+    def get_book_by_author(self, author):
+        query = "SELECT * FROM books WHERE author = %s"
+        params = (author,)
+        try:
+            return self.db.execute_query(query, params)
+        except Exception as e:
+            return f'Error finding author of the Book: {e}'
