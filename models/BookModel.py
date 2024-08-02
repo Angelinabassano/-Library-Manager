@@ -25,4 +25,15 @@ class BookModel:
     def get_book_by_id(self, book_id):
         query = "SELECT * FROM books WHERE book_id = %s"
         params = (book_id,)
-        return self.db.execute_query(query, params)
+        try:
+            return self.db.execute_query(query, params)
+        except Exception as e:
+            return f'Error finding book_id: {e}'
+
+    def get_book_by_title(self, title):
+        query = "SELECT * FROM books WHERE title = %s"
+        params = (title,)
+        try:
+            return self.db.execute_query(query, params)
+        except Exception as e:
+            return f'Error finding the title of the Book: {e}'
