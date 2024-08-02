@@ -21,3 +21,8 @@ class BookModel:
             return self.db.update_query(query, params)
         except Exception as e:
             return f'Error when creating the book: {e}'
+
+    def get_book_by_id(self, book_id):
+        query = "SELECT * FROM books WHERE book_id = %s"
+        params = (book_id,)
+        return self.db.execute_query(query, params)
