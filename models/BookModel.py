@@ -13,3 +13,11 @@ class BookModel:
             return self.db.execute_query(query, params)
         except Exception as e:
             return f'Error verifying data: {e}'
+
+    def create_book(self, title, author, category_id, stock):
+        query = "INSERT INTO books(title, author, category_id, stock) VALUES(%s, %s, %s, %s)"
+        params = (title, author, category_id, stock)
+        try:
+            return self.db.update_query(query, params)
+        except Exception as e:
+            return f'Error when creating the book: {e}'
