@@ -150,3 +150,52 @@ def test_get_book_by_id_exception(mocker):
         'status_code': 500,
         'response': 'Error finding book_id: Mocked exception'
     }
+
+
+def test_get_book_by_title_success(mocker):
+    mock_book_model = mocker.patch('src.controllers.BookController.BookModel')
+    mock_book_model_instance = mock_book_model.return_value
+    mock_book_model_instance.get_book_by_title.return_value = {'title': 'Title Test', 'author': 'Author Test'}
+
+    book_controller = BookController()
+    book_controller.book_model = mock_book_model_instance
+    title = "Title Test"
+    response = book_controller.get_book_by_title(title)
+
+    assert response == {
+        'status_code': 200,
+        'response': 'Book found',
+        'result': {'title': 'Title Test', 'author': 'Author Test'}
+    }
+
+
+def test_get_book_by_title_not_found(mocker):
+    mock_book_model = mocker.patch('src.controllers.BookController.BookModel')
+    mock_book_model_instance = mock_book_model.return_value
+    mock_book_model_instance.get_book_by_title.return_value = None
+
+    book_controller = BookController()
+    book_controller.book_model = mock_book_model_instance
+    title = "Title Test"
+    response = book_controller.get_book_by_title(title)
+
+    assert response == {
+        'status_code': 404,
+        'response': 'Book don’t found'
+    }
+
+
+def test_get_book_by_title_exception(mocker):
+    mock_book_model = mocker.patch('src.controllers.BookController.BookModel')
+    mock_book_model_instance = mock_book_model.return_value
+    mock_book_model_instance.get_book_by_title.side_effect = Exception("Mocked exception")
+
+    book_controller = BookController()
+    book_controller.book_model = mock_book_model_instance
+    title = "Title Test"
+    response = book_controller.get_book_by_title(title)
+
+    assert response == {
+        'status_code': 500,
+        'response': 'Error finding the title of the Book: Mocked exception'
+    }
