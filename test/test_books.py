@@ -6,10 +6,10 @@ from src.controllers.BookController import BookController
 def test_verify_data_success(mocker):
     mock_book_model = mocker.patch('src.controllers.BookController.BookModel')
     mock_book_model_instance = mock_book_model.return_value
-    mock_book_model_instance.verify_data.return_value = {'book_id': 'Book_id Test', 'title': 'Title Test',
+    mock_book_model_instance.verify_data.return_value = {'book_id': 'Book Test', 'title': 'Title Test',
                                                          'author': 'Author Test', 'category_id': 'Category Test'}
     book_controller = BookController()
-    book_id = "Book_id Test"
+    book_id = "Book Test"
     title = "Title Test"
     author = "Author Test"
     category_id = "Category Test"
@@ -30,7 +30,7 @@ def test_verify_data_not_found(mocker):
     mock_book_model_instance = mock_book_model.return_value
     mock_book_model_instance.verify_data.return_value = None
     book_controller = BookController()
-    book_id = "Book_id Test"
+    book_id = "Book Test"
     title = "Title Test"
     author = "Author Test"
     category_id = "Category Test"
@@ -39,7 +39,7 @@ def test_verify_data_not_found(mocker):
 
     assert response == {
         'status_code': 404,
-        'response': 'Don’t verify data'
+        'response': 'Don’t Verify data'
     }
 
 
@@ -83,7 +83,7 @@ def test_create_book_success(mocker):
     mock_book_model_instance.create_book.assert_called_once_with(book_id, title, author, category_id, stock)
 
 
-def test_create_book_failure(mocker):
+def test_create_book_failed(mocker):
     mock_book_model = mocker.patch('src.controllers.BookController.BookModel')
     mock_book_model_instance = mock_book_model.return_value
     mock_book_model_instance.create_book.side_effect = Exception("Mocked exception")
@@ -106,17 +106,17 @@ def test_create_book_failure(mocker):
 def test_get_book_by_id_success(mocker):
     mock_book_model = mocker.patch('src.controllers.BookController.BookModel')
     mock_book_model_instance = mock_book_model.return_value
-    mock_book_model_instance.get_book_by_id.return_value = {'title': 'Title Test', 'author': ' Author Test'}
+    mock_book_model_instance.get_book_by_id.return_value = {'title': 'Title Test', 'author': 'Author Test'}
 
     book_controller = BookController()
     book_controller.book_model = mock_book_model_instance
-    book_id = " Book_id Test"
+    book_id = "Book_id Test"
     response = book_controller.get_book_by_id(book_id)
 
     assert response == {
         'status_code': 200,
         'response': 'Book_id found',
-        'result': {'title': ' Title Test', 'author': 'Author Test '}
+        'result': {'title': 'Title Test', 'author': 'Author Test'}
     }
 
 
@@ -132,7 +132,7 @@ def test_get_book_by_id_not_found(mocker):
 
     assert response == {
         'status_code': 404,
-        'response': 'Book_id don’t found'
+        'response': 'Book_id not found'
     }
 
 
