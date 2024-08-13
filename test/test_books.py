@@ -387,3 +387,59 @@ def test_update_book_by_stock_decrease_exception(mocker):
     }
 
     mock_book_model_instance.update_book_by_stock_decrease.assert_called_once_with(decrease_stock, book_id)
+
+
+def test_delete_book_exception(mocker):
+    mock_book_model = mocker.patch('src.controllers.BookController.BookModel')
+    mock_book_model_instance = mock_book_model.return_value
+
+    mock_book_model_instance.delete_book.side_effect = Exception("Mocked exception")
+
+    mock_book_model_instance.get_book_by_id.return_value = {
+        'status_code': 200,
+        'response': 'Book_id found',
+        'result': {
+            'book_id': 'Book_id Test',
+            'title': 'Title Test'
+
+        }
+    }
+
+    book_controller = BookController()
+    book_controller.book_model = mock_book_model_instance
+
+    book_id = "Book_idTest"
+    response = book_controller.delete_book(book_id, True)
+
+    assert response == {
+        'status_code': 500,
+        'response': 'Error deleting book: Mocked exception'
+    }
+
+
+def test_delete_book_success(mocker):
+    mock_book_model = mocker.patch('src.controllers.BookController.BookModel')
+    mock_book_model_instance = mock_book_model.return_value
+
+    mock_book_model_instance.get_book_by_id.return_value = {
+        'status_code': 200,
+        'response': 'Book_id found',
+        'result': {
+            'book_id': 'Book_id Test',
+            'title': 'Title Test'
+        }
+    }
+
+    mock_book_model_instance.delete_book.return_value = True
+
+    book_controller = BookController()
+    book_controller.book_model = mock_book_model_instance
+
+    book_id = "Book_id Test"
+    response = book_controller.delete_book(book_id, confirm=True)
+
+    assert response == {
+        'status_code': 200,
+        'response': 'The book was deleted'
+    }
+
