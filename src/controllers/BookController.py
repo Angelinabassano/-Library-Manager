@@ -57,3 +57,25 @@ class BookController:
                 return {'status_code': 404, 'response': 'Book not found'}
         except Exception as e:
             return {'status_code': 500, 'response': f'Error finding author of the Book: {e}'}
+
+    def update_book(self, book_id, title, author, category_id, stock):
+        try:
+            print(f"Fetching book with book_id: {book_id}")
+            book = self.get_book_by_id(book_id)
+
+            if book['status_code'] == 404:
+                return {'status_code': 404, 'response': "You cannot update a book that doesn't exist"}
+
+            book_id = self.book_model.update_book(title, author, category_id, stock, book_id)
+            if book_id:
+                return {'status_code': 200, 'response': 'Update completed successfully'}
+            else:
+                return {'status_code': 400, 'response': 'Update not done'}
+
+        except Exception as e:
+            return {
+                'status_code': 500,
+                'response': f'Error updating the book: {e}'
+            }
+
+
