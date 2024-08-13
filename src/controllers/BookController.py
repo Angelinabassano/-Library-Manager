@@ -108,3 +108,19 @@ class BookController:
                 'response': f'Error updating the stock of the book: {e}'
             }
 
+    def delete_book(self, book_id, confirm):
+        try:
+            print(f"Fetching book with book_id: {book_id}")
+            book = self.get_book_by_id(book_id)
+
+            if book['status_code'] == 404:
+                return book['You can not delete a book that doesn´t exists']
+
+            if confirm:
+                self.book_model.delete_book(book_id)
+                return {'status_code': 200, 'response': 'The book was deleted'}
+            else:
+                return {'status_code': 400, 'response': 'Deletion not confirmed'}
+        except Exception as e:
+            print(f"Exception in delete_book: {e}")
+            return {'status_code': 500, 'response': f'Error deleting book: {e}'}
