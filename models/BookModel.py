@@ -53,3 +53,11 @@ class BookModel:
             return self.db.update_query(query, params)
         except Exception as e:
             return f'Error updating book: {e}'
+
+    def update_book_by_stock_increment(self, book_id, stock):
+        query = "UPDATE books SET stock = stock + %s  WHERE book_id = %s"
+        params = (stock, book_id,)
+        try:
+            return self.db.update_query(query, params)
+        except Exception as e:
+            return f'Error updating the stock of the book: {e}'
