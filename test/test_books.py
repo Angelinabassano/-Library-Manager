@@ -294,3 +294,38 @@ def test_update_book_failed(mocker):
         'response': 'Error updating the book: Mocked exception'
     }
     mock_book_model_instance.update_book.assert_called_once_with(title, author, category_id, stock, book_id)
+
+
+def test_update_book_by_stock_increment_success(mocker):
+    mock_book_model = mocker.patch('src.controllers.BookController.BookModel')
+    mock_book_model_instance = mock_book_model.return_value
+    mock_book_model_instance.update_book_by_stock_increment.return_value = "Stock updated successfully"
+
+    book_controller = BookController()
+    book_controller.book_model = mock_book_model_instance
+
+    book_id = "Book_id Test "
+    initial_stock = 3
+    increment_stock = 3
+    new_stock = initial_stock + increment_stock
+
+    response = book_controller.update_book_by_stock_increment(new_stock, book_id,)
+    assert response == {'result': "Stock updated successfully"}
+
+    mock_book_model_instance.update_book_by_stock_increment.assert_called_once_with(book_id, new_stock)
+
+
+def test_update_book_by_stock_increment_failed(mocker):
+    mock_book_model = mocker.patch('src.controllers.BookController.BookModel')
+    mock_book_model_instance = mock_book_model.return_value
+    mock_book_model_instance.update_book_by_stock_increment.side_effect = Exception("Mocked exception")
+
+    book_controller = BookController()
+    book_id = "Book_id Test"
+
+    response = book_controller.update_book_by_stock_increment(book_id, 10)
+    assert response == {
+        'status_code': 500,
+        'response': 'Error updating book stock: Mocked exception'
+    }
+    mock_book_model_instance.update_book_by_stock_increment.assert_called_once_with(10, book_id)
