@@ -97,15 +97,14 @@ class BookController:
                 'response': 'Stock decrement value must be positive'
             }
         try:
-
             self.book_model.update_book_by_stock_decrease(stock_decrement, book_id, )
             return {
                 'status_code': 200,
                 'response': 'Stock has been successfully decreased'
             }
-
         except Exception as e:
             return {
                 'status_code': 500,
                 'response': f'Error updating the stock of the book: {e}'
             }
+
