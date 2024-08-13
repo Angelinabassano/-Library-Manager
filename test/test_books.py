@@ -309,7 +309,7 @@ def test_update_book_by_stock_increment_success(mocker):
     increment_stock = 3
     new_stock = initial_stock + increment_stock
 
-    response = book_controller.update_book_by_stock_increment(new_stock, book_id,)
+    response = book_controller.update_book_by_stock_increment(new_stock, book_id, )
     assert response == {'result': "Stock updated successfully"}
 
     mock_book_model_instance.update_book_by_stock_increment.assert_called_once_with(book_id, new_stock)
@@ -329,3 +329,61 @@ def test_update_book_by_stock_increment_failed(mocker):
         'response': 'Error updating book stock: Mocked exception'
     }
     mock_book_model_instance.update_book_by_stock_increment.assert_called_once_with(10, book_id)
+
+
+def test_update_book_by_stock_decrease_success(mocker):
+    mock_book_model = mocker.patch('src.controllers.BookController.BookModel')
+    mock_book_model_instance = mock_book_model.return_value
+    mock_book_model_instance.update_book_by_stock_decrease.return_value = "Stock has been successfully decreased"
+
+    book_controller = BookController()
+    book_controller.book_model = mock_book_model_instance
+
+    book_id = "Book_id Test"
+    decrease_stock = 1
+
+    response = book_controller.update_book_by_stock_decrease(book_id, decrease_stock)
+    assert response == {
+        'status_code': 200,
+        'response': 'Stock has been successfully decreased'
+    }
+    mock_book_model_instance.update_book_by_stock_decrease.assert_called_once_with(decrease_stock, book_id)
+
+
+def test_update_book_by_stock_decrease_invalid_decrement(mocker):
+    mock_book_model = mocker.patch('src.controllers.BookController.BookModel')
+    mock_book_model_instance = mock_book_model.return_value
+
+    book_controller = BookController()
+    book_controller.book_model = mock_book_model_instance
+
+    book_id = "Book_id Test "
+    decrease_stock = 0
+
+    response = book_controller.update_book_by_stock_decrease(book_id, decrease_stock)
+    assert response == {
+        'status_code': 400,
+        'response': 'Stock decrement value must be positive'
+    }
+
+    mock_book_model_instance.update_book_by_stock_decrease.assert_not_called()
+
+
+def test_update_book_by_stock_decrease_exception(mocker):
+    mock_book_model = mocker.patch('src.controllers.BookController.BookModel')
+    mock_book_model_instance = mock_book_model.return_value
+    mock_book_model_instance.update_book_by_stock_decrease.side_effect = Exception("Database error")
+
+    book_controller = BookController()
+    book_controller.book_model = mock_book_model_instance
+
+    book_id = "Book_id Test "
+    decrease_stock = 1
+
+    response = book_controller.update_book_by_stock_decrease(book_id, decrease_stock)
+    assert response == {
+        'status_code': 500,
+        'response': 'Error updating the stock of the book: Database error'
+    }
+
+    mock_book_model_instance.update_book_by_stock_decrease.assert_called_once_with(decrease_stock, book_id)
