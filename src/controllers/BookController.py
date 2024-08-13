@@ -78,4 +78,34 @@ class BookController:
                 'response': f'Error updating the book: {e}'
             }
 
+    def update_book_by_stock_increment(self, book_id, stock):
+        try:
+            result = self.book_model.update_book_by_stock_increment(stock, book_id, )
+            return {
+                'result': "Stock updated successfully"
+            }
+        except Exception as e:
+            return {
+                'status_code': 500,
+                'response': f'Error updating book stock: {e}'
+            }
 
+    def update_book_by_stock_decrease(self, book_id, stock_decrement):
+        if stock_decrement <= 0:
+            return {
+                'status_code': 400,
+                'response': 'Stock decrement value must be positive'
+            }
+        try:
+
+            self.book_model.update_book_by_stock_decrease(stock_decrement, book_id, )
+            return {
+                'status_code': 200,
+                'response': 'Stock has been successfully decreased'
+            }
+
+        except Exception as e:
+            return {
+                'status_code': 500,
+                'response': f'Error updating the stock of the book: {e}'
+            }
