@@ -45,3 +45,11 @@ class BookModel:
             return self.db.execute_query(query, params)
         except Exception as e:
             return f'Error finding author of the Book: {e}'
+
+    def update_book(self, book_id, title, author, category_id, stock):
+        query = 'UPDATE books SET title = %s ,author = %s ,category_id = %s, stock = %s WHERE book_id = %s'
+        params = (book_id, title, author, category_id, stock,)
+        try:
+            return self.db.update_query(query, params)
+        except Exception as e:
+            return f'Error updating book: {e}'
