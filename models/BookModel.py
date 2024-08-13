@@ -69,3 +69,11 @@ class BookModel:
             return self.db.update_query(query, params)
         except Exception as e:
             return f'Error updating the stock of the book: {e}'
+
+    def delete_book(self, book_id):
+        query = "DELETE FROM books WHERE book_id = %s"
+        params = (book_id,)
+        try:
+            return self.db.update_query(query, params)
+        except Exception as e:
+            return f'Error deleting book: {e}'
