@@ -8,7 +8,7 @@ from config.Connection import Connection
 
 class LoanModel:
     def __init__(self):
-        self.db = Connection
+        self.db = Connection()
 
 
     def verify_data(self, book_id, user_id):
