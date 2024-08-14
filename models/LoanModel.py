@@ -1,107 +1,160 @@
 import psycopg2
-from datetime import datetime, timedelta
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from datetime import datetime
+from config.Connection import Connection
 
 
 class LoanModel:
-    def __init__(self, connection):
-        self.connection = connection
+    def __init__(self):
+        self.db = Connection()
 
-    def create_loan(self, book_id, user_id):    #Crea un préstamo y disminuye el stock del libro.
+
+    def verify_data(self, book_id, user_id):
+
+        query = "SELECT * FROM books WHERE book_id = %s AND user_id = %s"
+        params = (book_id, user_id,)
         try:
-            cursor = self.connection.cursor()
-            loan_date = datetime.now().date()
-            return_date = loan_date + timedelta(days=21)
-            final_date = None  # La fecha final se actualizará cuando se devuelva el libro
-
-            cursor.execute(
-                "INSERT INTO loans (book_id, user_id, loan_date, return_date, final_date) VALUES (%s, %s, %s, %s, %s)",
-                (book_id, user_id, loan_date, return_date, final_date)
-            )
-
-            cursor.execute(
-                "UPDATE books SET stock = stock - 1 WHERE book_id = %s AND stock > 0",
-                (book_id,)
-            )
-
-            self.connection.commit()
-            cursor.close()
-            return True
+            return self.db.execute_query(query, params)
         except Exception as e:
-            print(f"Error creating loan: {e}")
-            self.connection.rollback()
-            return False
+            return f"Error verifying data: {e}"
 
-    def update_final_date(self, loan_id):  #Actualiza la fecha final cuando el libro es devuelto y aumenta el stock del libro.
+    def create_loan(self, book_id, user_id, loan_date):
+
+        query_loan = "INSERT INTO loans (book_id, user_id, loan_date, return_date) VALUES (%s, %s, %s, %s + INTERVAL '21 days')"
+        params_loan = (book_id, user_id, loan_date, loan_date)
+
+
         try:
-            cursor = self.connection.cursor()
+            return self.db.execute_query(query_loan, params_loan)
+        except Exception as e:
+            return f"Error when creating the book: {e}"
 
-            final_date = datetime.now().date()
 
-            cursor.execute(
-                "UPDATE loans SET final_date = %s WHERE loan_id = %s",
-                (final_date, loan_id)
-            )
+    def decrease_stock(self, book_id, stock):
+        query = "UPDATE books SET stock = stock - 1 WHERE book_id = %s AND stock > 0"
+        params = (book_id, stock)
 
-            cursor.execute("SELECT book_id FROM loans WHERE loan_id = %s", (loan_id,))
-            result = cursor.fetchone()
+        try:
+            return self.db.execute_query(query, params)
+        except Exception as e:
+            return f"Error reducing stock: {e}"
 
+
+    def final_loan(self, loan_id):
+        final_date = datetime.now().date()
+
+        query_update_final_date = "UPDATE loans SET final_date = %s WHERE loan_id = %s"
+        params_update_final_date = (final_date, loan_id)
+
+        query_get_book_id = "SELECT book_id FROM loans WHERE loan_id = %s"
+        params_get_book_id = (loan_id,)
+
+        query_update_stock = "UPDATE books SET stock = stock + 1 WHERE book_id = %s"
+
+
+        try:
+            self.db.execute_query(query_update_final_date, params_update_final_date)
+
+            result = self.db.execute_query(query_get_book_id, params_get_book_id)
             if result:
-                book_id = result[0]
-
-                cursor.execute(
-                    "UPDATE books SET stock = stock + 1 WHERE book_id = %s",
-                    (book_id,)
-                )
+                book_id = result[0][0]
+                params_update_stock = (book_id,)
+                self.db.update_query(query_update_stock, params_update_stock)
             else:
                 raise ValueError("Loan ID not found")
 
-            self.connection.commit()
-            cursor.close()
             return True
-        except Exception as e:
-            print(f"Error updating final date and returning book: {e}")
-            self.connection.rollback()
-            return False
 
-    def get_overdue_loans(self):   #Obtiene los préstamos vencidos que aún no han sido notificados.
+        except Exception as e:
+            return f"Error updating final date and returning book: {e}"
+
+    def increase_stock(self, book_id, stock):
+        query = "UPDATE books SET stock = stock + 1 WHERE book_id = %s"
+        params = (book_id, stock)
+
         try:
-            cursor = self.connection.cursor()
-            today = datetime.now().date()
-            cursor.execute(
-                "SELECT loan_id, user_id, return_date FROM loans WHERE return_date < %s AND notification = FALSE",
-                (today,)
-            )
-            overdue_loans = cursor.fetchall()
-            cursor.close()
+            return self.db.execute_query(query, params)
+        except Exception as e:
+            return f"Error increasing stock: {e}"
+
+    def get_overdue_loans(self, loan_id, user_id, return_id, notification, last_notification_date):
+        query_overdue_loans = "SELECT loan_id, user_id, return_date, notification, last_notification_date FROM loans WHERE return_date < %s"
+        params_overdue_loans = (datetime.now().date(),)
+
+        try:
+            overdue_loans = self.db.execute_query(query_overdue_loans, params_overdue_loans)
             return overdue_loans
         except Exception as e:
-            print(f"Error fetching overdue loans: {e}")
-            return []
+            return f"Error fetching overdue loans: {e}"
 
-    def mark_loan_notified(self, loan_id):   #Actualiza last_notification_date al marcar el préstamo como notificado.
+    def notify_overdue_loans(self):
+        overdue_loans = self.get_overdue_loans()
+        for loan in overdue_loans:
+            loan_id, user_id, return_date, notification, last_notification_date = loan
+
+            # Verificar si se necesita enviar una notificación
+            now = datetime.now().date()
+            if not notification or (last_notification_date and (now - last_notification_date).days >= 3):
+                # Recuperar la dirección de correo electrónico del usuario
+                query_get_email = "SELECT email FROM users WHERE user_id = %s"
+                params_get_email = (user_id,)
+
+                try:
+                    result = self.db.execute_query(query_get_email, params_get_email)
+                    if result:
+                        user_email = result[0][0]
+                        subject = "Book Return Overdue"
+                        body = f"Dear User,\n\nYour book loan with ID {loan_id} is overdue. Please return the book as soon as possible.\n\nThank you."
+                        self.send_email(user_email, subject, body)
+
+                        # Actualizar la fecha de la última notificación y marcar el préstamo como notificado
+                        self.update_last_notification_date(loan_id)
+                        self.mark_loan_notified(loan_id)
+
+                except Exception as e:
+                    return f"Error fetching user email or sending notification: {e}"
+
+    def update_last_notification_date(self, loan_id, book_id):
+        query_update_last_notification = "UPDATE loans SET last_notification_date = %s WHERE loan_id = %s"
+        params_update_last_notification = (datetime.now().date(), loan_id)
+
         try:
-            cursor = self.connection.cursor()
-            cursor.execute(
-                "UPDATE loans SET notification = TRUE WHERE loan_id = %s",
-                (loan_id,)
-            )
-            self.connection.commit()
-            cursor.close()
+            self.db.execute_query(query_update_last_notification, params_update_last_notification)
         except Exception as e:
-            print(f"Error marking loan as notified: {e}")
-            self.connection.rollback()
+            return f"Error updating last notification date: {e}"
+
+    def mark_loan_notified(self, loan_id):  # Marca un préstamo como notificado.
+        query_mark_notified = "UPDATE loans SET notification = TRUE WHERE loan_id = %s"
+        params_mark_notified = (loan_id,)
+
+        try:
+            self.db.execute_query(query_mark_notified, params_mark_notified)
+        except Exception as e:
+            return f"Error marking loan as notified: {e}"
+
+    def send_email(self, to_email, subject, body):
+        from_email = "your_email@example.com"
+        password = "your_password"
+
+        msg = MIMEMultipart()
+        msg['From'] = from_email
+        msg['To'] = to_email
+        msg['Subject'] = subject
+
+        msg.attach(MIMEText(body, 'plain'))
+
+        try:
+            with smtplib.SMTP('smtp.example.com', 587) as server:
+                server.starttls()
+                server.login(from_email, password)
+                server.sendmail(from_email, to_email, msg.as_string())
+            print(f"Email sent to {to_email}")
+        except Exception as e:
+            print(f"Error sending email: {e}")
 
 
-def create_connection():
-    try:
-        connection = psycopg2.connect(
-            dbname="",
-            user="",
-            password="",
-            host="",
-            port=""
-        )
-        return connection
-    except Exception as e:
-        print(f"Error connecting to the database: {e}")
-        return None
+
+
+
