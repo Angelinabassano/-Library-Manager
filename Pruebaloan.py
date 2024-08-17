@@ -27,8 +27,4 @@ Loan = LoanController()
 #resultado = Loan.notify_overdue_loans()
 #print(resultado)
 
-# Borra un préstamo
-# print("Borrando préstamo")
-# loan_id = 5
-# resultado = Loan.delete_loan(loan_id=loan_id)
-# print(resultado)
+

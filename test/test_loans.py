@@ -2,7 +2,6 @@ import pytest
 from unittest.mock import MagicMock
 from src.controllers.LoanController import LoanController
 
-# Test for verify_data method
 def test_verify_data_success(mocker):
     mock_loan_model = mocker.patch('src.controllers.LoanController.LoanModel')
     mock_loan_model_instance = mock_loan_model.return_value
@@ -58,7 +57,6 @@ def test_verify_data_exception(mocker):
 
     mock_loan_model_instance.verify_data.assert_called_once_with(book_id, user_id)
 
-# Test for create_loan method
 def test_create_loan_success(mocker):
     mock_loan_model = mocker.patch('src.controllers.LoanController.LoanModel')
     mock_loan_model_instance = mock_loan_model.return_value
@@ -125,7 +123,6 @@ def test_create_loan_exception(mocker):
     mock_loan_model_instance.decrease_stock.assert_called_once_with(book_id, 1)
     mock_loan_model_instance.create_loan.assert_called_once_with(loan_id, book_id, user_id, loan_date)
 
-# Test for final_loan method
 def test_final_loan_success(mocker):
     mock_loan_model = mocker.patch('src.controllers.LoanController.LoanModel')
     mock_loan_model_instance = mock_loan_model.return_value
@@ -180,7 +177,6 @@ def test_final_loan_exception(mocker):
 
     mock_loan_model_instance.final_loan.assert_called_once_with(loan_id, final_date)
 
-# Test for get_overdue_loans method
 def test_get_overdue_loans_success(mocker):
     mock_loan_model = mocker.patch('src.controllers.LoanController.LoanModel')
     mock_loan_model_instance = mock_loan_model.return_value
@@ -230,7 +226,6 @@ def test_get_overdue_loans_exception(mocker):
 
     mock_loan_model_instance.get_overdue_loans.assert_called_once_with()
 
-# Test for notify_overdue_loans method
 def test_notify_overdue_loans_success(mocker):
     mock_loan_model = mocker.patch('src.controllers.LoanController.LoanModel')
     mock_loan_model_instance = mock_loan_model.return_value
@@ -265,7 +260,6 @@ def test_notify_overdue_loans_exception(mocker):
 
 
 def test_delete_loan_success(mocker):
-    # Mock the LoanModel to simulate successful loan deletion
     mock_loan_model = mocker.patch('src.controllers.LoanController.LoanModel')
     mock_loan_model_instance = mock_loan_model.return_value
     mock_loan_model_instance.delete_loan.return_value = True
@@ -273,7 +267,6 @@ def test_delete_loan_success(mocker):
     loan_controller = LoanController()
     loan_id = "Loan Test"
 
-    # Call the method and assert the expected response
     response = loan_controller.delete_loan(loan_id)
 
     assert response == {
@@ -281,11 +274,9 @@ def test_delete_loan_success(mocker):
         'response': 'Loan deleted successfully'
     }
 
-    # Ensure the delete_loan method in the model was called once with the correct loan_id
     mock_loan_model_instance.delete_loan.assert_called_once_with(loan_id)
 
 def test_delete_loan_not_found(mocker):
-    # Mock the LoanModel to simulate loan not found scenario
     mock_loan_model = mocker.patch('src.controllers.LoanController.LoanModel')
     mock_loan_model_instance = mock_loan_model.return_value
     mock_loan_model_instance.delete_loan.return_value = False
@@ -293,10 +284,8 @@ def test_delete_loan_not_found(mocker):
     loan_controller = LoanController()
     loan_id = "Loan Test"
 
-    # Call the method and assert the expected response
     response = loan_controller.delete_loan(loan_id)
 
-    # Update the expected response to match the actual output of the controller
     assert response == {
         'status_code': 400,
         'response': 'Failed to delete loan: False'
@@ -313,7 +302,6 @@ def test_delete_loan_exception(mocker):
     loan_controller = LoanController()
     loan_id = "Loan Test"
 
-    # Call the method and assert the expected response
     response = loan_controller.delete_loan(loan_id)
 
     assert response == {
@@ -321,5 +309,4 @@ def test_delete_loan_exception(mocker):
         'response': 'Error deleting loan: Mocked exception'
     }
 
-    # Ensure the delete_loan method in the model was called once with the correct loan_id
     mock_loan_model_instance.delete_loan.assert_called_once_with(loan_id)

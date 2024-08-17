@@ -85,7 +85,6 @@ class LoanController:
 
     def delete_loan(self, loan_id):
         try:
-            # Llamamos al modelo para borrar el préstamo
             delete_result = self.loan_model.delete_loan(loan_id)
             if delete_result is True:
                 return {'status_code': 200, 'response': 'Loan deleted successfully'}
