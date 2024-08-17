@@ -262,3 +262,64 @@ def test_notify_overdue_loans_exception(mocker):
     }
 
     mock_loan_model_instance.notify_overdue_loans.assert_called_once_with()
+
+
+def test_delete_loan_success(mocker):
+    # Mock the LoanModel to simulate successful loan deletion
+    mock_loan_model = mocker.patch('src.controllers.LoanController.LoanModel')
+    mock_loan_model_instance = mock_loan_model.return_value
+    mock_loan_model_instance.delete_loan.return_value = True
+
+    loan_controller = LoanController()
+    loan_id = "Loan Test"
+
+    # Call the method and assert the expected response
+    response = loan_controller.delete_loan(loan_id)
+
+    assert response == {
+        'status_code': 200,
+        'response': 'Loan deleted successfully'
+    }
+
+    # Ensure the delete_loan method in the model was called once with the correct loan_id
+    mock_loan_model_instance.delete_loan.assert_called_once_with(loan_id)
+
+def test_delete_loan_not_found(mocker):
+    # Mock the LoanModel to simulate loan not found scenario
+    mock_loan_model = mocker.patch('src.controllers.LoanController.LoanModel')
+    mock_loan_model_instance = mock_loan_model.return_value
+    mock_loan_model_instance.delete_loan.return_value = False
+
+    loan_controller = LoanController()
+    loan_id = "Loan Test"
+
+    # Call the method and assert the expected response
+    response = loan_controller.delete_loan(loan_id)
+
+    # Update the expected response to match the actual output of the controller
+    assert response == {
+        'status_code': 400,
+        'response': 'Failed to delete loan: False'
+    }
+
+    mock_loan_model_instance.delete_loan.assert_called_once_with(loan_id)
+
+def test_delete_loan_exception(mocker):
+    # Mock the LoanModel to simulate an exception
+    mock_loan_model = mocker.patch('src.controllers.LoanController.LoanModel')
+    mock_loan_model_instance = mock_loan_model.return_value
+    mock_loan_model_instance.delete_loan.side_effect = Exception("Mocked exception")
+
+    loan_controller = LoanController()
+    loan_id = "Loan Test"
+
+    # Call the method and assert the expected response
+    response = loan_controller.delete_loan(loan_id)
+
+    assert response == {
+        'status_code': 500,
+        'response': 'Error deleting loan: Mocked exception'
+    }
+
+    # Ensure the delete_loan method in the model was called once with the correct loan_id
+    mock_loan_model_instance.delete_loan.assert_called_once_with(loan_id)

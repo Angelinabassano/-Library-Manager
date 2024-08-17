@@ -83,3 +83,13 @@ class LoanController:
         except Exception as e:
             return {'status_code': 500, 'response': f'Error updating last notification date: {e}'}
 
+    def delete_loan(self, loan_id):
+        try:
+            # Llamamos al modelo para borrar el préstamo
+            delete_result = self.loan_model.delete_loan(loan_id)
+            if delete_result is True:
+                return {'status_code': 200, 'response': 'Loan deleted successfully'}
+            else:
+                return {'status_code': 400, 'response': f'Failed to delete loan: {delete_result}'}
+        except Exception as e:
+            return {'status_code': 500, 'response': f'Error deleting loan: {e}'}

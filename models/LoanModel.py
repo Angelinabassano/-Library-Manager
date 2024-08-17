@@ -43,7 +43,6 @@ class LoanModel:
 
 
     def final_loan(self, loan_id, final_date):
-        #final_date = datetime.now().date()
 
         query_update_final_date = "UPDATE loans SET final_date = %s WHERE loan_id = %s"
         params_update_final_date = (final_date, loan_id)
@@ -154,3 +153,33 @@ class LoanModel:
         except Exception as e:
             print(f"Error sending email: {e}")
 
+
+
+    def delete_loan(self, loan_id):
+        # Primero, recuperamos el ID del libro para poder aumentar el stock
+        query_get_book_id = "SELECT book_id FROM loans WHERE loan_id = %s"
+        params_get_book_id = (loan_id,)
+
+        # Query para eliminar el préstamo
+        query_delete_loan = "DELETE FROM loans WHERE loan_id = %s"
+        params_delete_loan = (loan_id,)
+
+        # Query para aumentar el stock del libro
+        query_update_stock = "UPDATE books SET stock = stock + 1 WHERE book_id = %s"
+
+        try:
+            # Recuperar el ID del libro
+            result = self.db.execute_query(query_get_book_id, params_get_book_id)
+            if result:
+                book_id = result[0][0]
+
+                # Aumentar el stock
+                self.db.update_query(query_update_stock, (book_id,))
+
+                # Eliminar el préstamo
+                self.db.update_query(query_delete_loan, params_delete_loan)
+                return True
+            else:
+                return f"Loan ID {loan_id} not found"
+        except Exception as e:
+            return f"Error deleting loan: {e}"
