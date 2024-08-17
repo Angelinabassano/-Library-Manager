@@ -16,25 +16,26 @@ class LoanController:
         except Exception as e:
             return {'status_code': 500, 'response': f'Error verifying data: {e}'}
 
-    def create_loan(self, book_id, user_id, loan_date):
+    def create_loan(self, loan_id, book_id, user_id, loan_date):
         try:
-            # Decrease stock before creating the loan
+            # Decrease stock before creating the loan with an UPDATE query
             stock_result = self.loan_model.decrease_stock(book_id, 1)
-            if "Error" in stock_result or not stock_result:
+            # if "Error" in stock_result or not stock_result:
+            if not stock_result or stock_result < 1:
                 return {'status_code': 409, 'response': 'No stock available'}
 
             # Create loan record
-            loan_result = self.loan_model.create_loan(book_id, user_id, loan_date)
-            if "Error" not in loan_result:
+            loan_result = self.loan_model.create_loan(loan_id, book_id, user_id, loan_date)
+            if loan_result > 0:
                 return {'status_code': 200, 'response': 'Loan created successfully', 'result': loan_result}
             else:
                 return {'status_code': 400, 'response': f'Loan creation failed: {loan_result}'}
         except Exception as e:
             return {'status_code': 500, 'response': f'Error creating loan: {e}'}
 
-    def final_loan(self, loan_id):
+    def final_loan(self, loan_id, final_date):
         try:
-            final_result = self.loan_model.final_loan(loan_id)
+            final_result = self.loan_model.final_loan(loan_id, final_date)
             if final_result is True:
                 return {'status_code': 200, 'response': 'Loan finalized successfully'}
             else:
@@ -81,5 +82,4 @@ class LoanController:
                 return {'status_code': 400, 'response': f'Failed to update last notification date: {update_result}'}
         except Exception as e:
             return {'status_code': 500, 'response': f'Error updating last notification date: {e}'}
-
 

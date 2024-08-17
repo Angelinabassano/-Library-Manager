@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import MagicMock
 from src.controllers.LoanController import LoanController
 
-
+# Test for verify_data method
 def test_verify_data_success(mocker):
     mock_loan_model = mocker.patch('src.controllers.LoanController.LoanModel')
     mock_loan_model_instance = mock_loan_model.return_value
@@ -22,7 +22,6 @@ def test_verify_data_success(mocker):
 
     mock_loan_model_instance.verify_data.assert_called_once_with(book_id, user_id)
 
-
 def test_verify_data_not_found(mocker):
     mock_loan_model = mocker.patch('src.controllers.LoanController.LoanModel')
     mock_loan_model_instance = mock_loan_model.return_value
@@ -40,7 +39,6 @@ def test_verify_data_not_found(mocker):
     }
 
     mock_loan_model_instance.verify_data.assert_called_once_with(book_id, user_id)
-
 
 def test_verify_data_exception(mocker):
     mock_loan_model = mocker.patch('src.controllers.LoanController.LoanModel')
@@ -60,41 +58,42 @@ def test_verify_data_exception(mocker):
 
     mock_loan_model_instance.verify_data.assert_called_once_with(book_id, user_id)
 
-
+# Test for create_loan method
 def test_create_loan_success(mocker):
     mock_loan_model = mocker.patch('src.controllers.LoanController.LoanModel')
     mock_loan_model_instance = mock_loan_model.return_value
-    mock_loan_model_instance.decrease_stock.return_value = "Stock decreased"
-    mock_loan_model_instance.create_loan.return_value = "Loan created"
+    mock_loan_model_instance.decrease_stock.return_value = 1
+    mock_loan_model_instance.create_loan.return_value = 1
 
     loan_controller = LoanController()
+    loan_id = "Loan Test"
     book_id = "Book Test"
     user_id = "User Test"
     loan_date = "2024-01-01"
 
-    response = loan_controller.create_loan(book_id, user_id, loan_date)
+    response = loan_controller.create_loan(loan_id, book_id, user_id, loan_date)
 
     assert response == {
         'status_code': 200,
         'response': 'Loan created successfully',
-        'result': "Loan created"
+        'result': 1
     }
 
     mock_loan_model_instance.decrease_stock.assert_called_once_with(book_id, 1)
-    mock_loan_model_instance.create_loan.assert_called_once_with(book_id, user_id, loan_date)
-
+    mock_loan_model_instance.create_loan.assert_called_once_with(loan_id, book_id, user_id, loan_date)
 
 def test_create_loan_no_stock(mocker):
     mock_loan_model = mocker.patch('src.controllers.LoanController.LoanModel')
     mock_loan_model_instance = mock_loan_model.return_value
-    mock_loan_model_instance.decrease_stock.return_value = "Error: No stock available"
+    mock_loan_model_instance.decrease_stock.return_value = 0
 
     loan_controller = LoanController()
+    loan_id = "Loan Test"
     book_id = "Book Test"
     user_id = "User Test"
     loan_date = "2024-01-01"
 
-    response = loan_controller.create_loan(book_id, user_id, loan_date)
+    response = loan_controller.create_loan(loan_id, book_id, user_id, loan_date)
 
     assert response == {
         'status_code': 409,
@@ -104,18 +103,19 @@ def test_create_loan_no_stock(mocker):
     mock_loan_model_instance.decrease_stock.assert_called_once_with(book_id, 1)
     mock_loan_model_instance.create_loan.assert_not_called()
 
-
 def test_create_loan_exception(mocker):
     mock_loan_model = mocker.patch('src.controllers.LoanController.LoanModel')
     mock_loan_model_instance = mock_loan_model.return_value
+    mock_loan_model_instance.decrease_stock.return_value = 1
     mock_loan_model_instance.create_loan.side_effect = Exception("Mocked exception")
 
     loan_controller = LoanController()
+    loan_id = "Loan Test"
     book_id = "Book Test"
     user_id = "User Test"
     loan_date = "2024-01-01"
 
-    response = loan_controller.create_loan(book_id, user_id, loan_date)
+    response = loan_controller.create_loan(loan_id, book_id, user_id, loan_date)
 
     assert response == {
         'status_code': 500,
@@ -123,9 +123,9 @@ def test_create_loan_exception(mocker):
     }
 
     mock_loan_model_instance.decrease_stock.assert_called_once_with(book_id, 1)
-    mock_loan_model_instance.create_loan.assert_called_once_with(book_id, user_id, loan_date)
+    mock_loan_model_instance.create_loan.assert_called_once_with(loan_id, book_id, user_id, loan_date)
 
-
+# Test for final_loan method
 def test_final_loan_success(mocker):
     mock_loan_model = mocker.patch('src.controllers.LoanController.LoanModel')
     mock_loan_model_instance = mock_loan_model.return_value
@@ -133,34 +133,34 @@ def test_final_loan_success(mocker):
 
     loan_controller = LoanController()
     loan_id = "Loan Test"
+    final_date = "2024-02-01"
 
-    response = loan_controller.final_loan(loan_id)
+    response = loan_controller.final_loan(loan_id, final_date)
 
     assert response == {
         'status_code': 200,
         'response': 'Loan finalized successfully'
     }
 
-    mock_loan_model_instance.final_loan.assert_called_once_with(loan_id)
-
+    mock_loan_model_instance.final_loan.assert_called_once_with(loan_id, final_date)
 
 def test_final_loan_failed(mocker):
     mock_loan_model = mocker.patch('src.controllers.LoanController.LoanModel')
     mock_loan_model_instance = mock_loan_model.return_value
-    mock_loan_model_instance.final_loan.return_value = "Error: Loan finalization failed"
+    mock_loan_model_instance.final_loan.return_value = False
 
     loan_controller = LoanController()
     loan_id = "Loan Test"
+    final_date = "2024-02-01"
 
-    response = loan_controller.final_loan(loan_id)
+    response = loan_controller.final_loan(loan_id, final_date)
 
     assert response == {
         'status_code': 400,
-        'response': 'Loan finalization failed: Error: Loan finalization failed'
+        'response': 'Loan finalization failed: False'
     }
 
-    mock_loan_model_instance.final_loan.assert_called_once_with(loan_id)
-
+    mock_loan_model_instance.final_loan.assert_called_once_with(loan_id, final_date)
 
 def test_final_loan_exception(mocker):
     mock_loan_model = mocker.patch('src.controllers.LoanController.LoanModel')
@@ -169,17 +169,18 @@ def test_final_loan_exception(mocker):
 
     loan_controller = LoanController()
     loan_id = "Loan Test"
+    final_date = "2024-02-01"
 
-    response = loan_controller.final_loan(loan_id)
+    response = loan_controller.final_loan(loan_id, final_date)
 
     assert response == {
         'status_code': 500,
         'response': 'Error finalizing loan: Mocked exception'
     }
 
-    mock_loan_model_instance.final_loan.assert_called_once_with(loan_id)
+    mock_loan_model_instance.final_loan.assert_called_once_with(loan_id, final_date)
 
-
+# Test for get_overdue_loans method
 def test_get_overdue_loans_success(mocker):
     mock_loan_model = mocker.patch('src.controllers.LoanController.LoanModel')
     mock_loan_model_instance = mock_loan_model.return_value
@@ -197,7 +198,6 @@ def test_get_overdue_loans_success(mocker):
 
     mock_loan_model_instance.get_overdue_loans.assert_called_once_with()
 
-
 def test_get_overdue_loans_not_found(mocker):
     mock_loan_model = mocker.patch('src.controllers.LoanController.LoanModel')
     mock_loan_model_instance = mock_loan_model.return_value
@@ -213,7 +213,6 @@ def test_get_overdue_loans_not_found(mocker):
     }
 
     mock_loan_model_instance.get_overdue_loans.assert_called_once_with()
-
 
 def test_get_overdue_loans_exception(mocker):
     mock_loan_model = mocker.patch('src.controllers.LoanController.LoanModel')
@@ -231,7 +230,7 @@ def test_get_overdue_loans_exception(mocker):
 
     mock_loan_model_instance.get_overdue_loans.assert_called_once_with()
 
-
+# Test for notify_overdue_loans method
 def test_notify_overdue_loans_success(mocker):
     mock_loan_model = mocker.patch('src.controllers.LoanController.LoanModel')
     mock_loan_model_instance = mock_loan_model.return_value
@@ -247,7 +246,6 @@ def test_notify_overdue_loans_success(mocker):
     }
 
     mock_loan_model_instance.notify_overdue_loans.assert_called_once_with()
-
 
 def test_notify_overdue_loans_exception(mocker):
     mock_loan_model = mocker.patch('src.controllers.LoanController.LoanModel')
