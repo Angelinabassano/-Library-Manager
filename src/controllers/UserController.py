@@ -30,3 +30,14 @@ class UserController:
         except Exception as e:
             return dict(status_code=500,
                         response=f'Error updating user: {e}')
+
+    def delete_user(self, user_id):
+        try:
+            if not self.user_model.get_user(user_id):
+                return dict(status_code=404,
+                            response='User not found')
+            self.user_model.delete_user(user_id)
+            return dict(status_code=200,
+                        response='User successfully deleted')
+        except Exception as e:
+            return dict(status_code=500, response=f'Error deleting user: {e}')
