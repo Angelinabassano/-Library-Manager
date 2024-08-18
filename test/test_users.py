@@ -27,6 +27,7 @@ def test_create_user_success(mocker):
     assert response == expect_result
     mock_user_model_instance.create_user.assert_called_once_with(first_name, last_name, email, phone_number, address)
 
+
 def test_create_user_failure(mocker):
     mock_user_model = mocker.patch('src.controllers.UserController.UsersModels')
     mock_user_model_instance = mock_user_model.return_value
