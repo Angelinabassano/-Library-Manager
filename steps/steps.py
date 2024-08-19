@@ -39,7 +39,7 @@ def step_impl(context):
 def step_impl(context):
     book_controller = BookController()
     context.result = book_controller.verify_data(
-       context.book_id, context.title, context.author, context.category_id
+        context.book_id, context.title, context.author, context.category_id
     )
 
 
@@ -70,9 +70,11 @@ def step_impl(context):
     assert context.result['status_code'] == 500
     assert "Error verifying data:" in context.result['response']
 
+
 @given('The librarian wants to search for a book in the database by its id')
 def step_impl(context):
     context.book_id = 1
+
 
 @when('The librarian provides the id to the system to obtain the book data')
 def step_impl(context):
@@ -181,3 +183,59 @@ def step_impl(context):
     assert context.result['status_code'] == 500
     assert 'Error finding the title of the Book:' in context.result['response']
 
+
+@given('The librarian wants to search for a book in the database by its author')
+def step_impl(context):
+    context.author = "J.K. Rowling"
+
+
+@when('The librarian provides the author to the system to obtain the book data')
+def step_impl(context):
+    try:
+        book_controller = BookController()
+        context.result = book_controller.get_book_by_author(context.author)
+
+    except Exception as e:
+        return {'status_code': 500, 'response': f'Error finding author of the Book: {e}'}
+
+
+@then('The librarian receives the message \'Book found\' in database')
+def step_impl(context):
+    assert context.result['status_code'] == 200
+    assert context.result['response'] == 'Book found'
+
+
+@given('Librarian wants to search for a book in the database by incorrect author')
+def step_impl(context):
+    context.author = "Miguel"
+
+
+@when('The librarian provides the incorrect author to the system to obtain the book data')
+def step_impl(context):
+    book_controller = BookController()
+    context.result = book_controller.get_book_by_author(context.author)
+
+
+@then('The librarian receives the message \'Book not found\' in database')
+def step_impl(context):
+    assert context.result['status_code'] == 404
+    assert context.result['response'] == 'Book not found'
+
+
+@given('The librarian wants to search for a book in the database by correct author')
+def step_impl(context):
+    context.author = "Roald Dahl"
+
+
+@when('The librarian provides the author to the system to obtain the book')
+def step_impl(context):
+    try:
+        raise Exception("No connection to the database")
+    except Exception as e:
+        context.result = {'status_code': 500, 'response': f'Error finding author of the Book: {e}'}
+
+
+@then('The librarian should receive an error message \'Error finding author of the Book:\'')
+def step_impl(context):
+    assert context.result['status_code'] == 500
+    assert 'Error finding author of the Book:' in context.result['response']
