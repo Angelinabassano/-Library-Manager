@@ -88,6 +88,7 @@ def step_impl(context):
     assert context.result['status_code'] == 200
     assert context.result['response'] == 'Book_id found'
 
+
 @given('The librarian wants to search for a book in the database by incorrect book_id')
 def step_impl(context):
     context.book_id = 50
@@ -122,4 +123,61 @@ def step_impl(context):
 def step_impl(context):
     assert context.result['status_code'] == 500
     assert 'Error finding book_id:' in context.result['response']
+
+
+@given('The librarian wants to search for a book in the database by its title')
+def step_impl(context):
+    context.title = "El Quijote"
+
+
+@when('The librarian provides the title to the system to obtain the book data')
+def step_impl(context):
+    try:
+        book_controller = BookController()
+        context.result = book_controller.get_book_by_title(context.title)
+
+    except Exception as e:
+        return {'status_code': 500, 'response': f'Error finding book_id: {e}'}
+
+
+@then('THe librarian receives the message \'Book found\' in DB')
+def step_impl(context):
+    assert context.result['status_code'] == 200
+    assert context.result['response'] == 'Book found'
+
+
+@given('The librarian wants to search for a book in the database by its incorrect title')
+def step_impl(context):
+    context.title = "La Odisea"
+
+
+@when('The librarian provides the incorrect title to the system to obtain the book data')
+def step_impl(context):
+    book_controller = BookController()
+    context.result = book_controller.get_book_by_title(context.title)
+
+
+@then('The librarian receives the message \'Book not found\' in DB')
+def step_impl(context):
+    assert context.result['status_code'] == 404
+    assert context.result['response'] == 'Book not found'
+
+
+@given('The librarian wants to search for a book in the database by correct title')
+def step_impl(context):
+    context.title = "El Quijote"
+
+
+@when('The librarian provides the tiitle to the system to obtain the book')
+def step_impl(context):
+    try:
+        raise Exception("No connection to the database")
+    except Exception as e:
+        context.result = {'status_code': 500, 'response': f'Error finding the title of the Book: {e}'}
+
+
+@then('The librarian should receive an error message \'Error finding the title of the Book :\'')
+def step_impl(context):
+    assert context.result['status_code'] == 500
+    assert 'Error finding the title of the Book:' in context.result['response']
 
