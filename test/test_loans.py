@@ -294,7 +294,6 @@ def test_delete_loan_not_found(mocker):
     mock_loan_model_instance.delete_loan.assert_called_once_with(loan_id)
 
 def test_delete_loan_exception(mocker):
-    # Mock the LoanModel to simulate an exception
     mock_loan_model = mocker.patch('src.controllers.LoanController.LoanModel')
     mock_loan_model_instance = mock_loan_model.return_value
     mock_loan_model_instance.delete_loan.side_effect = Exception("Mocked exception")
