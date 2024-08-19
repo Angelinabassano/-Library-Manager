@@ -47,3 +47,23 @@ class CategoryController:
                 return {'status_code': 404, 'response': 'Category not found'}
         except Exception as e:
             return {'status_code': 500, 'response': f'Error finding the category: {e}'}
+
+    def update_category(self, category_id, category_name):
+        try:
+            print(f"Fetching category with category_id: {category_id}")
+            category = self.get_category_by_id(category_id)
+
+            if category['status_code'] == 404:
+                return {'status_code': 404, 'response': "You cannot update a category that doesn't exist"}
+
+            category_id = self.category_model.update_category(category_name, category_id)
+            if category_id:
+                return {'status_code': 200, 'response': 'Update completed successfully'}
+            else:
+                return {'status_code': 400, 'response': 'Update not done'}
+
+        except Exception as e:
+            return {
+                'status_code': 500,
+                'response': f'Error updating the category: {e}'
+            }
