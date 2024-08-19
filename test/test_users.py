@@ -10,42 +10,44 @@ def test_create_user_success(mocker):
     mock_user_model_instance.create_user.return_value = None
 
     user_controller = UserController()
+    user_id = "user_id Test"
     first_name = "First_name Test"
     last_name = "Last_name Test"
     email = "Email Test"
     phone_number = "Phone_number Test"
     address = "Address Test"
 
-    response = user_controller.create_user(first_name, last_name, email, phone_number, address)
+    response = user_controller.create_user(user_id, first_name, last_name, email, phone_number, address)
 
     expect_result = {
         'status_code': 200,
-        'response': 'The user was created successfully',
-        'result': [first_name, last_name, email, phone_number, address]
+        'response': 'User create successfully',
+        'result': [user_id, first_name, last_name, email, phone_number, address]
     }
 
     assert response == expect_result
-    mock_user_model_instance.create_user.assert_called_once_with(first_name, last_name, email, phone_number, address)
+    mock_user_model_instance.create_user.assert_called_once_with(user_id, first_name, last_name, email, phone_number, address)
 
 
-def test_create_user_failure(mocker):
+def test_create_user_failed(mocker):
     mock_user_model = mocker.patch('src.controllers.UserController.UsersModels')
     mock_user_model_instance = mock_user_model.return_value
     mock_user_model_instance.verify_user.return_value = True
 
     user_controller = UserController()
+    user_id = "user_id Test"
     first_name = "First_name Test"
     last_name = "Last_name Test"
     email = "Email Test"
     phone_number = "Phone_number Test"
     address = "Address Test"
 
-    response = user_controller.create_user(first_name, last_name, email, phone_number, address)
+    response = user_controller.create_user(user_id, first_name, last_name, email, phone_number, address)
 
     expect_result = {
         'status_code': 400,
         'response': 'User already exists',
-        'result': [first_name, last_name, email, phone_number, address]
+        'result': [user_id, first_name, last_name, email, phone_number, address]
     }
 
     assert response == expect_result
@@ -53,11 +55,45 @@ def test_create_user_failure(mocker):
     mock_user_model_instance.create_user.assert_not_called()
 
 
-def test_edit_user_success(mocker):
+
+def test_get_user_success(mocker):
+    mock_user_model = mocker.patch('src.controllers.UserController.UsersModels')
+    mock_user_model_instance = mock_user_model.return_value
+    mock_user_model_instance.get_user.return_value = {'user_id': 'User_id Test', 'first_name': 'Last_name Test', 'email': 'Email Test', 'phone_number': 'Phone_number Test', 'address': 'Address Test'}
+
+    user_controller = UserController()
+    user_controller.user_model = mock_user_model_instance
+    user_id = "User_id Test"
+    response = user_controller.get_user(user_id)
+
+    assert response == {
+        'status_code': 200,
+        'response': 'user_id found',
+        'result': {'user_id': 'User_id Test', 'first_name': 'Last_name Test', 'email': 'Email Test', 'phone_number': 'Phone_number Test', 'address': 'Address Test'}
+    }
+
+
+def test_get_user_not_found(mocker):
+    mock_user_model = mocker.patch('src.controllers.UserController.UsersModels')
+    mock_user_model_instance = mock_user_model.return_value
+    mock_user_model_instance.get_user.return_value = None
+
+    user_controller = UserController()
+    user_controller.user_model = mock_user_model_instance
+    user_id = "User_id Test"
+    response = user_controller.get_user(user_id)
+
+    assert response == {
+        'status_code': 404,
+        'response': 'user_id not found'
+    }
+
+    
+def test_update_user_success(mocker):
     mock_user_model = mocker.patch('src.controllers.UserController.UsersModels')
     mock_user_model_instance = mock_user_model.return_value
     mock_user_model_instance.get_user.return_value = True
-    mock_user_model_instance.edit_user.return_value = None
+    mock_user_model_instance.update_user.return_value = None
 
     user_controller = UserController()
     user_id = "1 Test"
@@ -66,7 +102,7 @@ def test_edit_user_success(mocker):
     phone_number = "123456789 Test"
     address = "Calle principal 123 Test"
 
-    response = user_controller.edit_user(user_id, first_name, last_name, phone_number, address)
+    response = user_controller.update_user(user_id, first_name, last_name, phone_number, address)
 
     expect_result = {
         'status_code': 200,
@@ -75,10 +111,10 @@ def test_edit_user_success(mocker):
 
     assert response == expect_result
     mock_user_model_instance.get_user.assert_called_once_with(user_id)
-    mock_user_model_instance.edit_user.assert_called_once_with(user_id, first_name, last_name, phone_number, address)
+    mock_user_model_instance.update_user.assert_called_once_with(user_id, first_name, last_name, phone_number, address)
 
 
-def test_edit_user_not_found(mocker):
+def test_update_user_not_found(mocker):
     mock_user_model = mocker.patch('src.controllers.UserController.UsersModels')
     mock_user_model_instance = mock_user_model.return_value
     mock_user_model_instance.get_user.return_value = False
@@ -90,7 +126,7 @@ def test_edit_user_not_found(mocker):
     phone_number = "123456789 Test"
     address = "Calle principal 123 Test"
 
-    response = user_controller.edit_user(user_id, first_name, last_name, phone_number, address)
+    response = user_controller.update_user(user_id, first_name, last_name, phone_number, address)
 
     expect_result = {
         'status_code': 404,
@@ -99,7 +135,7 @@ def test_edit_user_not_found(mocker):
 
     assert response == expect_result
     mock_user_model_instance.get_user.assert_called_once_with(user_id)
-    mock_user_model_instance.edit_user.assert_not_called()
+    mock_user_model_instance.update_user.assert_not_called()
 
 
 def test_delete_user_success(mocker):
