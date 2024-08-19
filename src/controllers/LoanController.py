@@ -2,6 +2,7 @@ from models.LoanModel import LoanModel
 from models.BookModel import BookModel
 from models.UserModel import UsersModels
 
+
 class LoanController:
     def __init__(self):
         self.loan_model = LoanModel()
