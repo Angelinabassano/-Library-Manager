@@ -1,10 +1,12 @@
 from models.LoanModel import LoanModel
 from models.BookModel import BookModel
+from models.UserModel import UsersModels
 
 class LoanController:
     def __init__(self):
         self.loan_model = LoanModel()
         self.book_model = BookModel()
+        self.user_model = UsersModels()
 
     def verify_data(self, book_id, user_id):
         try:

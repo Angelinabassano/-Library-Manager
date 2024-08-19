@@ -3,7 +3,7 @@ from src.controllers.LoanController import LoanController
 from datetime import date
 
 
-Loan = LoanController()
+# Loan = LoanController()
 
 #Comprueba que reduce el stock y que crea el prestamo
 #print("Creando prestamo")
