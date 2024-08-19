@@ -13,7 +13,7 @@ class LoanModel:
 
     def verify_data(self, book_id, user_id):
 
-        query = "SELECT * FROM books WHERE book_id = %s AND user_id = %s"
+        query = "SELECT * FROM books, users WHERE books.book_id = %s AND users.user_id = %s"
         params = (book_id, user_id,)
         try:
             return self.db.execute_query(query, params)
