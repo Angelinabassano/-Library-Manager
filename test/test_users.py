@@ -27,7 +27,8 @@ def test_create_user_success(mocker):
     assert response == expect_result
     mock_user_model_instance.create_user.assert_called_once_with(first_name, last_name, email, phone_number, address)
 
-def test_create_user_failure(mocker):
+
+def test_create_user_failed(mocker):
     mock_user_model = mocker.patch('src.controllers.UserController.UsersModels')
     mock_user_model_instance = mock_user_model.return_value
     mock_user_model_instance.verify_user.return_value = True
@@ -50,6 +51,39 @@ def test_create_user_failure(mocker):
     assert response == expect_result
     mock_user_model_instance.verify_user.assert_called_once_with(email)
     mock_user_model_instance.create_user.assert_not_called()
+
+
+def test_get_user_success(mocker):
+    mock_user_model = mocker.patch('src.controllers.UserController.UsersModels')
+    mock_user_model_instance = mock_user_model.return_value
+    mock_user_model_instance.get_user.return_value = {'user_id': 'User_id Test', 'first_name': 'Last_name Test', 'email': 'Email Test', 'phone_number': 'Phone_number Test', 'address': 'Address Test'}
+
+    user_controller = UserController()
+    user_controller.user_model = mock_user_model_instance
+    user_id = "User_id Test"
+    response = user_controller.get_user(user_id)
+
+    assert response == {
+        'status_code': 200,
+        'response': 'user_id found',
+        'result': {'user_id': 'User_id Test', 'first_name': 'Last_name Test', 'email': 'Email Test', 'phone_number': 'Phone_number Test', 'address': 'Address Test'}
+    }
+
+
+def test_get_user_not_found(mocker):
+    mock_user_model = mocker.patch('src.controllers.UserController.UsersModels')
+    mock_user_model_instance = mock_user_model.return_value
+    mock_user_model_instance.get_user.return_value = None
+
+    user_controller = UserController()
+    user_controller.user_model = mock_user_model_instance
+    user_id = "User_id Test"
+    response = user_controller.get_user(user_id)
+
+    assert response == {
+        'status_code': 404,
+        'response': 'user_id not found'
+    }
 
 
 def test_edit_user_success(mocker):
