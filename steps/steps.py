@@ -249,4 +249,46 @@ def step_impl(context):
     assert "Error verifying data:" in context.result['response']
 
 
+@given('a user exists with ID "{user_id}"')
+def step_impl(context, user_id):
+    context.user_controller = UserController()
+    context.user_controller.user_model.create_user(
+        user_id=user_id,
+        first_name="John",
+        last_name="Doe",
+        email="john@example.com",
+        phone_number="123456789",
+        address="123 Main St"
+    )
+
+
+@when('I search for the user by ID "{user_id}"')
+def step_impl(context, user_id):
+    context.response = context.user_controller.get_user(user_id)
+
+
+@then('the user should be found with status code 200')
+def step_impl(context):
+    assert context.response['status_code'] == 200
+
+
+@then('the response should include "user_id found"')
+def step_impl(context):
+    assert "user_id found" in context.response['response']
+
+
+@given('no user exists with ID "{user_id}"')
+def step_impl(context, user_id):
+    context.user_controller = UserController()
+    context.user_controller.user_model.delete_user(user_id)
+
+
+@then('the user should not be found with status code 404')
+def step_impl(context):
+    assert context.response['status_code'] == 404
+
+
+@then('the response should include "user_id not found"')
+def step_impl(context):
+    assert "user_id not found" in context.response['response']
 
