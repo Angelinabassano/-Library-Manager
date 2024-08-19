@@ -31,9 +31,8 @@ El proyecto **Library Manager** tiene como objetivo desarrollar un sistema de ge
 * Pytest 8.3.2
 * Psycopg2 2.9.9
 * Python dotenv 1.0.1
-* 
-* 
-*
+* Behave 1.2.6
+* DateTime 5.5
 
 ## Instalación ⚙️
 
