@@ -20,6 +20,16 @@ class UserController:
             return dict(status_code=500,
                         response=f'Error creating user: {e}')
 
+    def get_user(self, user_id):
+        try:
+            user = self.user_model.get_user(user_id)
+            if user:
+                return {'status_code': 200, 'response': 'user_id found', 'result': user}
+            else:
+                return {'status_code': 404, 'response': 'user_id not found'}
+        except Exception as e:
+            return {'status_code': 500, 'response': f'Error finding user_id: {e}'}
+
     def update_user(self, user_id, first_name, last_name, phone_number, address):
         try:
             if not self.user_model.get_user(user_id):
