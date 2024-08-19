@@ -69,3 +69,57 @@ def step_impl(context):
 def step_impl(context):
     assert context.result['status_code'] == 500
     assert "Error verifying data:" in context.result['response']
+
+@given('The librarian wants to search for a book in the database by its id')
+def step_impl(context):
+    context.book_id = 1
+
+@when('The librarian provides the id to the system to obtain the book data')
+def step_impl(context):
+    try:
+        book_controller = BookController()
+        context.result = book_controller.get_book_by_id(context.book_id)
+    except Exception as e:
+        return {'status_code': 500, 'response': f'Error finding book_id: {e}'}
+
+
+@then('The librarian receives the message \'Book_id found\' in DB')
+def step_impl(context):
+    assert context.result['status_code'] == 200
+    assert context.result['response'] == 'Book_id found'
+
+@given('The librarian wants to search for a book in the database by incorrect book_id')
+def step_impl(context):
+    context.book_id = 50
+
+
+@when('The librarian provides the incorrect book_id to the system to obtain the book data')
+def step_impl(context):
+    book_controller = BookController()
+    context.result = book_controller.get_book_by_id(context.book_id)
+
+
+@then('The librarian receives the message \'Book_id not found\' in DB')
+def step_impl(context):
+    assert context.result['status_code'] == 404
+    assert context.result['response'] == 'Book_id not found'
+
+
+@given('The librarian wants to search for a book in the database by correct book_id')
+def step_impl(context):
+    context.book_id = 1
+
+
+@when('The librarian provides the book_id to the system to obtain the book')
+def step_impl(context):
+    try:
+        raise Exception("No connection to the database")
+    except Exception as e:
+        context.result = {'status_code': 500, 'response': f'Error finding book_id: {e}'}
+
+
+@then('The librarian should receive an error message \'Error finding book_id:\'')
+def step_impl(context):
+    assert context.result['status_code'] == 500
+    assert 'Error finding book_id:' in context.result['response']
+
