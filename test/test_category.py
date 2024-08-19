@@ -231,3 +231,57 @@ def test_update_category_failed(mocker):
         'response': f'Error updating the category: Mocked exception'
     }
     mock_category_model_instance.update_category.assert_called_once_with(category_name, category_id)
+
+
+def test_delete_category_success(mocker):
+    mock_category_model = mocker.patch('src.controllers.CategoryController.CategoryModel')
+    mock_category_model_instance = mock_category_model.return_value
+
+    mock_category_model_instance.get_by_category_id.return_value = {
+        'status_code': 200,
+        'response': 'Category_id found',
+        'result': {
+            'category_id': 'Category_id',
+            'category_name': 'Category_name Test'
+        }
+    }
+
+    mock_category_model_instance.delete_category.return_value = True
+
+    category_controller = CategoryController()
+    category_controller.category_model = mock_category_model_instance
+
+    category_id = "Category_id"
+    response = category_controller.delete_category(category_id, confirm=True)
+
+    assert response == {
+        'status_code': 200,
+        'response': 'The category was deleted'
+    }
+
+
+def test_delete_category_exception(mocker):
+    mock_category_model = mocker.patch('src.controllers.CategoryController.CategoryModel')
+    mock_category_model_instance = mock_category_model.return_value
+    mock_category_model_instance.delete_category.side_effect = Exception("Mocked exception")
+
+    mock_category_model_instance.get_by_category_id.return_value = {
+        'status_code': 200,
+        'response': 'Category_id found',
+        'result': {
+            'category_id': 'Category_id',
+            'category_name': 'Category_name Test'
+
+        }
+    }
+
+    category_controller = CategoryController()
+    category_controller.category_model = mock_category_model_instance
+    category_id = "Category_id"
+
+    response = category_controller.delete_category(category_id, True)
+
+    assert response == {
+        'status_code': 500,
+        'response': 'Error deleting category: Mocked exception'
+    }
