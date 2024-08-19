@@ -67,3 +67,20 @@ class CategoryController:
                 'status_code': 500,
                 'response': f'Error updating the category: {e}'
             }
+
+    def delete_category(self, category_id, confirm):
+        try:
+            print(f"Fetching category with category_id: {category_id}")
+            category = self.get_category_by_id(category_id)
+
+            if category['status_code'] == 404:
+                return category['You can not delete a category that doesn´t exists']
+
+            if confirm:
+                self.category_model.delete_category(category_id)
+                return {'status_code': 200, 'response': 'The category was deleted'}
+            else:
+                return {'status_code': 400, 'response': 'Deletion not confirmed'}
+        except Exception as e:
+            print(f"Exception in delete_category: {e}")
+            return {'status_code': 500, 'response': f'Error deleting category: {e}'}
