@@ -21,3 +21,13 @@ class CategoryModel:
             return self.db.update_query(query, params)
         except Exception as e:
             return f'Error when creating the category: {e}'
+
+    def get_category_by_id(self, category_id):
+        query = "SELECT * FROM categories WHERE category_id = %s"
+        params = (category_id,)
+        try:
+            return self.db.execute_query(query, params)
+        except Exception as e:
+            return f'Error finding category_id: {e}'
+
+
