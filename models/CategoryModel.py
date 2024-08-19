@@ -38,4 +38,14 @@ class CategoryModel:
         except Exception as e:
             return f'Error finding category_name: {e}'
 
+    def update_category(self, category_id, category_name):
+        query = 'UPDATE categories SET category_name = %s WHERE category_id = %s'
+        params = (category_id, category_name,)
+        try:
+            return self.db.update_query(query, params)
+        except Exception as e:
+            return f'Error modifying category: {e}'
+
+
+
 

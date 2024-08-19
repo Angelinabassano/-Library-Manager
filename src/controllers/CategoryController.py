@@ -27,3 +27,5 @@ class CategoryController:
                 'status_code': 500,
                 'response': f'Error when creating the category: {e}'
             }
+
+
