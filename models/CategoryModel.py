@@ -13,3 +13,11 @@ class CategoryModel:
             return self.db.execute_query(query, params)
         except Exception as e:
             return f'Error verifying category: {e}'
+
+    def create_category(self, category_id, category_name):
+        query = "INSERT INTO categories(category_id, category_name) VALUES(%s, %s)"
+        params = (category_id, category_name)
+        try:
+            return self.db.update_query(query, params)
+        except Exception as e:
+            return f'Error when creating the category: {e}'
