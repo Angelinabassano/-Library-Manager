@@ -20,30 +20,29 @@ class LoanModel:
         except Exception as e:
             return f"Error verifying data: {e}"
 
-    def create_loan(self, book_id, user_id, loan_date):
+    def create_loan(self, loan_id, book_id, user_id, loan_date):
 
-        query_loan = "INSERT INTO loans (book_id, user_id, loan_date, return_date) VALUES (%s, %s, %s, %s + INTERVAL '21 days')"
-        params_loan = (book_id, user_id, loan_date, loan_date)
+        query_loan = "INSERT INTO loans (loan_id, book_id, user_id, loan_date, return_date) VALUES (%s, %s, %s, %s, %s + INTERVAL '21 days')"
 
+        params_loan = (loan_id, book_id, user_id, loan_date, loan_date)
 
         try:
-            return self.db.execute_query(query_loan, params_loan)
+            return self.db.update_query(query_loan, params_loan)
         except Exception as e:
             return f"Error when creating the book: {e}"
 
 
     def decrease_stock(self, book_id, stock):
-        query = "UPDATE books SET stock = stock - 1 WHERE book_id = %s AND stock > 0"
-        params = (book_id, stock)
+        query = "UPDATE books SET stock = stock - %s WHERE book_id = %s AND stock > 0"
+        params = (stock, book_id)
 
         try:
-            return self.db.execute_query(query, params)
+            return self.db.update_query(query, params)
         except Exception as e:
             return f"Error reducing stock: {e}"
 
 
-    def final_loan(self, loan_id):
-        final_date = datetime.now().date()
+    def final_loan(self, loan_id, final_date):
 
         query_update_final_date = "UPDATE loans SET final_date = %s WHERE loan_id = %s"
         params_update_final_date = (final_date, loan_id)
@@ -55,7 +54,7 @@ class LoanModel:
 
 
         try:
-            self.db.execute_query(query_update_final_date, params_update_final_date)
+            self.db.update_query(query_update_final_date, params_update_final_date)
 
             result = self.db.execute_query(query_get_book_id, params_get_book_id)
             if result:
@@ -79,7 +78,7 @@ class LoanModel:
         except Exception as e:
             return f"Error increasing stock: {e}"
 
-    def get_overdue_loans(self, loan_id, user_id, return_id, notification, last_notification_date):
+    def get_overdue_loans(self):
         query_overdue_loans = "SELECT loan_id, user_id, return_date, notification, last_notification_date FROM loans WHERE return_date < %s"
         params_overdue_loans = (datetime.now().date(),)
 
@@ -94,10 +93,8 @@ class LoanModel:
         for loan in overdue_loans:
             loan_id, user_id, return_date, notification, last_notification_date = loan
 
-            # Verificar si se necesita enviar una notificación
             now = datetime.now().date()
             if not notification or (last_notification_date and (now - last_notification_date).days >= 3):
-                # Recuperar la dirección de correo electrónico del usuario
                 query_get_email = "SELECT email FROM users WHERE user_id = %s"
                 params_get_email = (user_id,)
 
@@ -109,14 +106,13 @@ class LoanModel:
                         body = f"Dear User,\n\nYour book loan with ID {loan_id} is overdue. Please return the book as soon as possible.\n\nThank you."
                         self.send_email(user_email, subject, body)
 
-                        # Actualizar la fecha de la última notificación y marcar el préstamo como notificado
                         self.update_last_notification_date(loan_id)
                         self.mark_loan_notified(loan_id)
 
                 except Exception as e:
                     return f"Error fetching user email or sending notification: {e}"
 
-    def update_last_notification_date(self, loan_id, book_id):
+    def update_last_notification_date(self, loan_id):
         query_update_last_notification = "UPDATE loans SET last_notification_date = %s WHERE loan_id = %s"
         params_update_last_notification = (datetime.now().date(), loan_id)
 
@@ -125,7 +121,7 @@ class LoanModel:
         except Exception as e:
             return f"Error updating last notification date: {e}"
 
-    def mark_loan_notified(self, loan_id):  # Marca un préstamo como notificado.
+    def mark_loan_notified(self, loan_id):
         query_mark_notified = "UPDATE loans SET notification = TRUE WHERE loan_id = %s"
         params_mark_notified = (loan_id,)
 
@@ -156,5 +152,25 @@ class LoanModel:
 
 
 
+    def delete_loan(self, loan_id):
+        query_get_book_id = "SELECT book_id FROM loans WHERE loan_id = %s"
+        params_get_book_id = (loan_id,)
 
+        query_delete_loan = "DELETE FROM loans WHERE loan_id = %s"
+        params_delete_loan = (loan_id,)
 
+        query_update_stock = "UPDATE books SET stock = stock + 1 WHERE book_id = %s"
+
+        try:
+            result = self.db.execute_query(query_get_book_id, params_get_book_id)
+            if result:
+                book_id = result[0][0]
+
+                self.db.update_query(query_update_stock, (book_id,))
+
+                self.db.update_query(query_delete_loan, params_delete_loan)
+                return True
+            else:
+                return f"Loan ID {loan_id} not found"
+        except Exception as e:
+            return f"Error deleting loan: {e}"

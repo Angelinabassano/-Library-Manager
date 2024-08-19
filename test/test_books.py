@@ -39,7 +39,7 @@ def test_verify_data_not_found(mocker):
 
     assert response == {
         'status_code': 404,
-        'response': 'Don’t Verify data'
+        'response': 'Don´t Verify data'
     }
 
 

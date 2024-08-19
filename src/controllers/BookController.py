@@ -12,7 +12,7 @@ class BookController:
             if book:
                 return {'status_code': 200, 'response': 'Verify data', 'result': book}
             else:
-                return {'status_code': 404, 'response': 'Don’t Verify data'}
+                return {'status_code': 404, 'response': 'Don´t Verify data'}
         except Exception as e:
             return {'status_code': 500, 'response': f'Error verifying data: {e}'}
 
@@ -42,7 +42,7 @@ class BookController:
         try:
             book = self.book_model.get_book_by_title(title)
             if book:
-                return {'status_code': 200, 'response': 'Book  found', 'result': book}
+                return {'status_code': 200, 'response': 'Book found', 'result': book}
             else:
                 return {'status_code': 404, 'response': 'Book not found'}
         except Exception as e:
