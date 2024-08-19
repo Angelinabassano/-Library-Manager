@@ -1,5 +1,7 @@
 from behave import given, when, then
 from src.controllers.BookController import BookController
+from src.controllers.LoanController import LoanController
+from src.controllers.UserController import UserController
 
 
 @given('the librarian has a valid book')
@@ -39,7 +41,7 @@ def step_impl(context):
 def step_impl(context):
     book_controller = BookController()
     context.result = book_controller.verify_data(
-       context.book_id, context.title, context.author, context.category_id
+        context.book_id, context.title, context.author, context.category_id
     )
 
 
@@ -70,9 +72,11 @@ def step_impl(context):
     assert context.result['status_code'] == 500
     assert "Error verifying data:" in context.result['response']
 
+
 @given('The librarian wants to search for a book in the database by its id')
 def step_impl(context):
     context.book_id = 1
+
 
 @when('The librarian provides the id to the system to obtain the book data')
 def step_impl(context):
@@ -180,4 +184,69 @@ def step_impl(context):
 def step_impl(context):
     assert context.result['status_code'] == 500
     assert 'Error finding the title of the Book:' in context.result['response']
+
+
+@given('the library wants to make a loan.')
+def step_impl(context):
+    context.book_id = 2
+    context.user_id = 3
+
+
+@when('the librarian wants to check if the provided loan can be made in the DB')
+def step_impl(context):
+    try:
+        loan_controller = LoanController()
+        context.result = loan_controller.verify_data(
+            context.book_id, context.user_id
+        )
+    except Exception as e:
+        context.result = {'status_code': 500, 'response': f'Error verifying data: {e}'}
+
+
+@then('the librarian should receive the message \'Data verified\' in the database')
+def step_impl(context):
+    assert context.result['status_code'] == 200
+    assert context.result['response'] == 'Data verified'
+
+
+@given('the librarian has loan with incorrect parameters')
+def step_impl(context):
+    context.book_id = 18522
+    context.user_id = 84865
+
+
+@when('the librarian wants to verify if data provided to the system exists in the database')
+def step_impl(context):
+    loan_controller = LoanController()
+    context.result = loan_controller.verify_data(
+        context.book_id, context.user_id
+    )
+
+
+@then('the librarian should receive an error message \'Do not Verify data\'')
+def step_impl(context):
+    assert context.result['status_code'] == 404
+    assert context.result['response'] == 'Data not verified'
+
+
+@given('the librarian has valid data to make the loan')
+def step_impl(context):
+    context.book_id = 1
+    context.user_id = 3
+
+
+@when('the librarian wants to check if the data exists in the database')
+def step_impl(context):
+    try:
+        raise Exception("No connection to the database")
+    except Exception as e:
+        context.result = {'status_code': 500, 'response': f'Error verifying data: {e}'}
+
+
+@then('the librarian should receive an error message \'Error verify data:\'')
+def step_impl(context):
+    assert context.result['status_code'] == 500
+    assert "Error verifying data:" in context.result['response']
+
+
 
