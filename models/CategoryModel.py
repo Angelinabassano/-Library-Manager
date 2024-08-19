@@ -46,6 +46,12 @@ class CategoryModel:
         except Exception as e:
             return f'Error modifying category: {e}'
 
-
+    def delete_category(self, category_id):
+        query = "DELETE FROM categories WHERE category_id = %s"
+        params = (category_id,)
+        try:
+            return self.db.update_query(query, params)
+        except Exception as e:
+            return f'Error deleting category: {e}'
 
 
