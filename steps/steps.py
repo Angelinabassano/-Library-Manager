@@ -1,5 +1,6 @@
 from behave import given, when, then
 from src.controllers.BookController import BookController
+from src.controllers.LoanController import LoanController
 
 
 @given('the librarian has a valid book')
@@ -48,24 +49,22 @@ def step_impl(context):
     assert context.result['status_code'] == 404
     assert context.result['response'] == 'Don´t Verify data'
 
+    @given('the library wants to make a loan.')
+    def step_impl(context):
+        context.book_id = 1
+        context.user_id = 2
 
-@given('the librarian has valid book')
-def step_impl(context):
-    context.book_id = 1
-    context.title = "El Quijote"
-    context.author = "Miguel de Cervantes"
-    context.category_id = 6
+    @when('the librarian wants to check if the provided loan can be made in the DB')
+    def step_impl(context):
+        try:
+            loan_controller = LoanController()
+            context.result = loan_controller.verify_data(
+                context.book_id, context.user_id
+            )
+        except Exception as e:
+            context.result = {'status_code': 500, 'response': f'Error verifying data: {e}'}
 
-
-@when('the librarian wants to verify if the book exists in the DB')
-def step_impl(context):
-    try:
-        raise Exception("No connection to the database")
-    except Exception as e:
-        context.result = {'status_code': 500, 'response': f'Error verifying data: {e}'}
-
-
-@then('The librarian should receive an error message \'Error verifying data:\'')
-def step_impl(context):
-    assert context.result['status_code'] == 500
-    assert "Error verifying data:" in context.result['response']
+    @then('the librarian should receive the \'Verify data\' message in the DB')
+    def step_impl(context):
+        assert context.result['status_code'] == 200
+        assert context.result['response'] == 'Verify data'
