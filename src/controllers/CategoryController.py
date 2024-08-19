@@ -28,4 +28,12 @@ class CategoryController:
                 'response': f'Error when creating the category: {e}'
             }
 
-
+    def get_category_by_id(self, category_id):
+        try:
+            category = self.category_model.get_category_by_id(category_id)
+            if category:
+                return {'status_code': 200, 'response': 'Category_id found', 'result': category}
+            else:
+                return {'status_code': 404, 'response': 'Category_id not found'}
+        except Exception as e:
+            return {'status_code': 500, 'response': f'Error finding category_id: {e}'}
