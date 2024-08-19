@@ -92,3 +92,53 @@ def test_create_category_failed(mocker):
     }
     mock_category_model_instance.create_category.assert_called_once_with(category_id, category_name)
 
+
+def test_get_category_by_id_success(mocker):
+    mock_category_model = mocker.patch('src.controllers.CategoryController.CategoryModel')
+    mock_category_model_instance = mock_category_model.return_value
+    mock_category_model_instance.get_category_by_id.return_value = {'category_name': 'Category_name Test'}
+
+    category_controller = CategoryController()
+    category_controller.category_model = mock_category_model_instance
+    category_id = "Category_id"
+
+    response = category_controller.get_category_by_id(category_id)
+
+    assert response == {
+        'status_code': 200,
+        'response': 'Category_id found',
+        'result': {'category_name': 'Category_name Test'}
+    }
+
+
+def test_get_category_by_id_not_found(mocker):
+    mock_category_model = mocker.patch('src.controllers.CategoryController.CategoryModel')
+    mock_category_model_instance = mock_category_model.return_value
+    mock_category_model_instance.get_category_by_id.return_value = None
+
+    category_controller = CategoryController()
+    category_controller.category_model = mock_category_model_instance
+    category_id = "Category_id"
+
+    response = category_controller.get_category_by_id(category_id)
+
+    assert response == {
+        'status_code': 404,
+        'response': 'Category_id not found'
+    }
+
+
+def test_get_category_by_id_exception(mocker):
+    mock_category_model = mocker.patch('src.controllers.CategoryController.CategoryModel')
+    mock_category_model_instance = mock_category_model.return_value
+    mock_category_model_instance.get_category_by_id.side_effect = Exception("Mocked exception")
+
+    category_controller = CategoryController()
+    category_controller.category_model = mock_category_model_instance
+    category_id = "Category_id"
+
+    response = category_controller.get_category_by_id(category_id)
+    assert response == {
+        'status_code': 500,
+        'response': f'Error finding category_id: Mocked exception'
+    }
