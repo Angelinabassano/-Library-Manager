@@ -15,3 +15,15 @@ class CategoryController:
                 return {'status_code': 404, 'response': 'Don’t Verify category'}
         except Exception as e:
             return {'status_code': 500, 'response': f'Error verifying category: {e}'}
+
+    def create_category(self, category_id, category_name):
+        try:
+            self.category_model.create_category(category_id, category_name)
+            return {
+                'result': f'{category_id, category_name}'
+            }
+        except Exception as e:
+            return {
+                'status_code': 500,
+                'response': f'Error when creating the category: {e}'
+            }
