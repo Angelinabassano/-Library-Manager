@@ -142,3 +142,54 @@ def test_get_category_by_id_exception(mocker):
         'status_code': 500,
         'response': f'Error finding category_id: Mocked exception'
     }
+
+
+def test_get_category_by_name_success(mocker):
+    mock_category_model = mocker.patch('src.controllers.CategoryController.CategoryModel')
+    mock_category_model_instance = mock_category_model.return_value
+    mock_category_model_instance.get_category_by_name.return_value = {'category_name': 'Category_name Test'}
+
+    category_controller = CategoryController()
+    category_controller.category_model = mock_category_model_instance
+    category_name = "Category_name"
+
+    response = category_controller.get_category_by_name(category_name)
+
+    assert response == {
+        'status_code': 200,
+        'response': 'Category  found',
+        'result': {'category_name': 'Category_name Test'}
+    }
+
+
+def test_get_category_by_name_not_found(mocker):
+    mock_category_model = mocker.patch('src.controllers.CategoryController.CategoryModel')
+    mock_category_model_instance = mock_category_model.return_value
+    mock_category_model_instance.get_category_by_name.return_value = None
+
+    category_controller = CategoryController()
+    category_controller.category_model = mock_category_model_instance
+    category_name = "Category_name"
+
+    response = category_controller.get_category_by_name(category_name)
+
+    assert response == {
+        'status_code': 404,
+        'response': 'Category not found'
+    }
+
+
+def test_get_category_by_name_exception(mocker):
+    mock_category_model = mocker.patch('src.controllers.CategoryController.CategoryModel')
+    mock_category_model_instance = mock_category_model.return_value
+    mock_category_model_instance.get_category_by_name.side_effect = Exception("Mocked exception")
+
+    category_controller = CategoryController()
+    category_controller.category_model = mock_category_model_instance
+    category_name = "Category_name"
+
+    response = category_controller.get_category_by_name(category_name)
+    assert response == {
+        'status_code': 500,
+        'response': f'Error finding the category: Mocked exception'
+    }
