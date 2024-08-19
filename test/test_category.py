@@ -193,3 +193,41 @@ def test_get_category_by_name_exception(mocker):
         'status_code': 500,
         'response': f'Error finding the category: Mocked exception'
     }
+
+
+def test_update_category_success(mocker):
+    mock_category_model = mocker.patch('src.controllers.CategoryController.CategoryModel')
+    mock_category_model_instance = mock_category_model.return_value
+    mock_category_model_instance.update_category_id.return_value = {'category_id': 'Category_id',
+                                                                    'category_name': 'Category Test'}
+
+    category_controller = CategoryController()
+    category_controller.category_model = mock_category_model_instance
+    category_id = "Category_id"
+    category_name = "Category Test"
+
+    response = category_controller.update_category(category_id, category_name)
+    assert response == {
+        'status_code': 200,
+        'response': 'Update completed successfully',
+    }
+
+    mock_category_model_instance.update_category.assert_called_once_with(category_name, category_id)
+
+
+def test_update_category_failed(mocker):
+    mock_category_model = mocker.patch('src.controllers.CategoryController.CategoryModel')
+    mock_category_model_instance = mock_category_model.return_value
+    mock_category_model_instance.update_category.side_effect = Exception("Mocked exception")
+
+    category_controller = CategoryController()
+    category_controller.category_model = mock_category_model_instance
+    category_id = "Category_id"
+    category_name = "Category Test"
+
+    response = category_controller.update_category(category_id, category_name)
+    assert response == {
+        'status_code': 500,
+        'response': f'Error updating the category: Mocked exception'
+    }
+    mock_category_model_instance.update_category.assert_called_once_with(category_name, category_id)
