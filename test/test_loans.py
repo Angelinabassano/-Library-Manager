@@ -2,6 +2,7 @@ import pytest
 from unittest.mock import MagicMock
 from src.controllers.LoanController import LoanController
 
+
 def test_verify_data_success(mocker):
     mock_loan_model = mocker.patch('src.controllers.LoanController.LoanModel')
     mock_loan_model_instance = mock_loan_model.return_value
@@ -21,6 +22,7 @@ def test_verify_data_success(mocker):
 
     mock_loan_model_instance.verify_data.assert_called_once_with(book_id, user_id)
 
+
 def test_verify_data_not_found(mocker):
     mock_loan_model = mocker.patch('src.controllers.LoanController.LoanModel')
     mock_loan_model_instance = mock_loan_model.return_value
@@ -39,6 +41,7 @@ def test_verify_data_not_found(mocker):
 
     mock_loan_model_instance.verify_data.assert_called_once_with(book_id, user_id)
 
+
 def test_verify_data_exception(mocker):
     mock_loan_model = mocker.patch('src.controllers.LoanController.LoanModel')
     mock_loan_model_instance = mock_loan_model.return_value
@@ -56,6 +59,7 @@ def test_verify_data_exception(mocker):
     }
 
     mock_loan_model_instance.verify_data.assert_called_once_with(book_id, user_id)
+
 
 def test_create_loan_success(mocker):
     mock_loan_model = mocker.patch('src.controllers.LoanController.LoanModel')
@@ -80,6 +84,7 @@ def test_create_loan_success(mocker):
     mock_loan_model_instance.decrease_stock.assert_called_once_with(book_id, 1)
     mock_loan_model_instance.create_loan.assert_called_once_with(loan_id, book_id, user_id, loan_date)
 
+
 def test_create_loan_no_stock(mocker):
     mock_loan_model = mocker.patch('src.controllers.LoanController.LoanModel')
     mock_loan_model_instance = mock_loan_model.return_value
@@ -100,6 +105,7 @@ def test_create_loan_no_stock(mocker):
 
     mock_loan_model_instance.decrease_stock.assert_called_once_with(book_id, 1)
     mock_loan_model_instance.create_loan.assert_not_called()
+
 
 def test_create_loan_exception(mocker):
     mock_loan_model = mocker.patch('src.controllers.LoanController.LoanModel')
@@ -123,6 +129,7 @@ def test_create_loan_exception(mocker):
     mock_loan_model_instance.decrease_stock.assert_called_once_with(book_id, 1)
     mock_loan_model_instance.create_loan.assert_called_once_with(loan_id, book_id, user_id, loan_date)
 
+
 def test_final_loan_success(mocker):
     mock_loan_model = mocker.patch('src.controllers.LoanController.LoanModel')
     mock_loan_model_instance = mock_loan_model.return_value
@@ -140,6 +147,7 @@ def test_final_loan_success(mocker):
     }
 
     mock_loan_model_instance.final_loan.assert_called_once_with(loan_id, final_date)
+
 
 def test_final_loan_failed(mocker):
     mock_loan_model = mocker.patch('src.controllers.LoanController.LoanModel')
@@ -159,6 +167,7 @@ def test_final_loan_failed(mocker):
 
     mock_loan_model_instance.final_loan.assert_called_once_with(loan_id, final_date)
 
+
 def test_final_loan_exception(mocker):
     mock_loan_model = mocker.patch('src.controllers.LoanController.LoanModel')
     mock_loan_model_instance = mock_loan_model.return_value
@@ -177,6 +186,7 @@ def test_final_loan_exception(mocker):
 
     mock_loan_model_instance.final_loan.assert_called_once_with(loan_id, final_date)
 
+
 def test_get_overdue_loans_success(mocker):
     mock_loan_model = mocker.patch('src.controllers.LoanController.LoanModel')
     mock_loan_model_instance = mock_loan_model.return_value
@@ -194,6 +204,7 @@ def test_get_overdue_loans_success(mocker):
 
     mock_loan_model_instance.get_overdue_loans.assert_called_once_with()
 
+
 def test_get_overdue_loans_not_found(mocker):
     mock_loan_model = mocker.patch('src.controllers.LoanController.LoanModel')
     mock_loan_model_instance = mock_loan_model.return_value
@@ -209,6 +220,7 @@ def test_get_overdue_loans_not_found(mocker):
     }
 
     mock_loan_model_instance.get_overdue_loans.assert_called_once_with()
+
 
 def test_get_overdue_loans_exception(mocker):
     mock_loan_model = mocker.patch('src.controllers.LoanController.LoanModel')
@@ -226,6 +238,7 @@ def test_get_overdue_loans_exception(mocker):
 
     mock_loan_model_instance.get_overdue_loans.assert_called_once_with()
 
+
 def test_notify_overdue_loans_success(mocker):
     mock_loan_model = mocker.patch('src.controllers.LoanController.LoanModel')
     mock_loan_model_instance = mock_loan_model.return_value
@@ -241,6 +254,7 @@ def test_notify_overdue_loans_success(mocker):
     }
 
     mock_loan_model_instance.notify_overdue_loans.assert_called_once_with()
+
 
 def test_notify_overdue_loans_exception(mocker):
     mock_loan_model = mocker.patch('src.controllers.LoanController.LoanModel')
@@ -276,6 +290,7 @@ def test_delete_loan_success(mocker):
 
     mock_loan_model_instance.delete_loan.assert_called_once_with(loan_id)
 
+
 def test_delete_loan_not_found(mocker):
     mock_loan_model = mocker.patch('src.controllers.LoanController.LoanModel')
     mock_loan_model_instance = mock_loan_model.return_value
@@ -292,6 +307,7 @@ def test_delete_loan_not_found(mocker):
     }
 
     mock_loan_model_instance.delete_loan.assert_called_once_with(loan_id)
+
 
 def test_delete_loan_exception(mocker):
     mock_loan_model = mocker.patch('src.controllers.LoanController.LoanModel')

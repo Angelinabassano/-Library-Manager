@@ -293,7 +293,8 @@ def step_impl(context):
 
 
 @when('the librarian wants to check if the data exists in the database')
-context.result = {'status_code': 500, 'response': f'Error verifying data: {e}'}
+def step_impl(context):
+    context.result = {'status_code': 500, 'response': f'Error verifying data:be'}
 
          
 @then('the librarian should receive an error message \'Error verify data:\'')

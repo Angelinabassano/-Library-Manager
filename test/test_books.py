@@ -164,7 +164,7 @@ def test_get_book_by_title_success(mocker):
 
     assert response == {
         'status_code': 200,
-        'response': 'Book  found',
+        'response': 'Book found',
         'result': {'title': 'Title Test'}
     }
 
