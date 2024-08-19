@@ -30,4 +30,12 @@ class CategoryModel:
         except Exception as e:
             return f'Error finding category_id: {e}'
 
+    def get_category_by_name(self, category_name):
+        query = "SELECT * FROM categories WHERE category_name = %s"
+        params = (category_name,)
+        try:
+            return self.db.execute_query(query, params)
+        except Exception as e:
+            return f'Error finding category_name: {e}'
+
 
