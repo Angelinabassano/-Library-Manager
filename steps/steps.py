@@ -2,7 +2,7 @@ from behave import given, when, then
 from src.controllers.BookController import BookController
 from src.controllers.LoanController import LoanController
 from src.controllers.UserController import UserController
-
+from src.controllers.CategoryController import CategoryController
 
 @given('the librarian has a valid book')
 def step_impl(context):
@@ -236,13 +236,13 @@ def step_impl(context):
     except Exception as e:
         context.result = {'status_code': 500, 'response': f'Error finding author of the Book: {e}'}
 
-        
+
 @then('The librarian should receive an error message \'Error finding author of the Book:\'')
 def step_impl(context):
     assert context.result['status_code'] == 500
-    assert 'Error finding author of the Book:' in context.result['response']        
+    assert 'Error finding author of the Book:' in context.result['response']
 
-    
+
 @given('the library wants to make a loan.')
 def step_impl(context):
     context.book_id = 2
@@ -296,7 +296,7 @@ def step_impl(context):
 def step_impl(context):
     context.result = {'status_code': 500, 'response': f'Error verifying data:be'}
 
-         
+
 @then('the librarian should receive an error message \'Error verify data:\'')
 def step_impl(context):
     assert context.result['status_code'] == 500
@@ -346,3 +346,64 @@ def step_impl(context):
 def step_impl(context):
     assert "user_id not found" in context.response['response']
 
+
+@given('the librarian wants to verify that a category exists')
+def step_impl(context):
+    context.category_name = "Romance"
+    context.category_id = 3
+
+
+@when('the librarian wants to check if the provided loan can be made in the database')
+def step_impl(context):
+    try:
+        category_controller = CategoryController()
+        context.result = category_controller.verify_category(
+            context.category_id, context.category_name)
+    except Exception as e:
+        context.result = {'status_code': 500, 'response': f'Error verifying category: {e}'}
+
+
+@then('the librarian should receive the message \'Verify category\' in the database')
+def step_impl(context):
+    assert context.result['status_code'] == 200
+    assert context.result['response'] == 'Verify category'
+
+
+@given('the librarian checks a category with incorrect parameters')
+def step_impl(context):
+    context.category_name = 1
+    context.category_id = 9999
+
+
+@when('the librarian wants to verify if the category provided to the system exists in the database')
+def step_impl(context):
+    book_controller = CategoryController()
+    context.result = book_controller.verify_category(
+        context.category_name, context.category_id
+    )
+
+
+@then('the librarian should receive an error message \'Don’t Verify category\'')
+def step_impl(context):
+    assert context.result['status_code'] == 404
+    assert context.result['response'] == 'Don’t Verify category'
+
+
+@given('the librarian has a valid category')
+def step_impl(context):
+    context.category_name = 1
+    context.category_id = 6
+
+
+@when('the librarian wants to check if the category exists in the database')
+def step_impl(context):
+    try:
+        raise Exception("No connection to the database")
+    except Exception as e:
+        context.result = {'status_code': 500, 'response': f'Error verifying category: {e}'}
+
+
+@then('the librarian should receive an error message \'Error verifying category:\'')
+def step_impl(context):
+    assert context.result['status_code'] == 500
+    assert "Error verifying category:" in context.result['response']
