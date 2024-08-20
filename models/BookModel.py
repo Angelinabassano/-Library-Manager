@@ -16,7 +16,7 @@ class BookModel:
 
     def create_book(self, book_id, title, author, category_id, stock):
         query = "INSERT INTO books(book_id, title, author, category_id, stock) VALUES(%s, %s, %s, %s, %s)"
-        params = (category_id, title, author, category_id, stock)
+        params = (book_id, title, author, category_id, stock)
         try:
             return self.db.update_query(query, params)
         except Exception as e:
