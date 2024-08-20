@@ -1,10 +1,13 @@
 from models.LoanModel import LoanModel
 from models.BookModel import BookModel
+from models.UserModel import UsersModels
+
 
 class LoanController:
     def __init__(self):
         self.loan_model = LoanModel()
         self.book_model = BookModel()
+        self.user_model = UsersModels()
 
     def verify_data(self, book_id, user_id):
         try:
@@ -18,13 +21,10 @@ class LoanController:
 
     def create_loan(self, loan_id, book_id, user_id, loan_date):
         try:
-            # Decrease stock before creating the loan with an UPDATE query
             stock_result = self.loan_model.decrease_stock(book_id, 1)
-            # if "Error" in stock_result or not stock_result:
             if not stock_result or stock_result < 1:
                 return {'status_code': 409, 'response': 'No stock available'}
 
-            # Create loan record
             loan_result = self.loan_model.create_loan(loan_id, book_id, user_id, loan_date)
             if loan_result > 0:
                 return {'status_code': 200, 'response': 'Loan created successfully', 'result': loan_result}
@@ -56,7 +56,7 @@ class LoanController:
     def notify_overdue_loans(self):
         try:
             notification_result = self.loan_model.notify_overdue_loans()
-            if notification_result is None:  # El método no devuelve un valor
+            if notification_result is None:
                 return {'status_code': 200, 'response': 'Overdue loans notified'}
             else:
                 return {'status_code': 400, 'response': f'Error notifying overdue loans: {notification_result}'}

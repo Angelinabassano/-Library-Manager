@@ -164,7 +164,7 @@ def test_get_book_by_title_success(mocker):
 
     assert response == {
         'status_code': 200,
-        'response': 'Book  found',
+        'response': 'Book found',
         'result': {'title': 'Title Test'}
     }
 
@@ -347,7 +347,7 @@ def test_update_book_by_stock_decrease_success(mocker):
         'status_code': 200,
         'response': 'Stock has been successfully decreased'
     }
-    mock_book_model_instance.update_book_by_stock_decrease.assert_called_once_with(decrease_stock, book_id)
+    mock_book_model_instance.update_book_by_stock_decrease.assert_called_once_with(book_id, decrease_stock)
 
 
 def test_update_book_by_stock_decrease_invalid_decrement(mocker):
@@ -386,7 +386,7 @@ def test_update_book_by_stock_decrease_exception(mocker):
         'response': 'Error updating the stock of the book: Database error'
     }
 
-    mock_book_model_instance.update_book_by_stock_decrease.assert_called_once_with(decrease_stock, book_id)
+    mock_book_model_instance.update_book_by_stock_decrease.assert_called_once_with(book_id, decrease_stock)
 
 
 def test_delete_book_exception(mocker):
