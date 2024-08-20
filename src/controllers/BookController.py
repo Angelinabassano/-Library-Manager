@@ -91,17 +91,25 @@ class BookController:
             }
 
     def update_book_by_stock_decrease(self, book_id, stock_decrement):
-        if stock_decrement <= 0:
-            return {
-                'status_code': 400,
-                'response': 'Stock decrement value must be positive'
-            }
         try:
-            self.book_model.update_book_by_stock_decrease(stock_decrement, book_id, )
-            return {
-                'status_code': 200,
-                'response': 'Stock has been successfully decreased'
-            }
+            print(f"Fetching book with book_id: {book_id}")
+            book = self.get_book_by_id(book_id)
+
+            if book['status_code'] == 404:
+                return {'status_code': 404, 'response': "You cannot update a book that doesn't exist"}
+
+            if stock_decrement <= 0:
+                return {
+                    'status_code': 400,
+                    'response': 'Stock decrement value must be positive'
+                }
+
+            book = self.book_model.update_book_by_stock_decrease(book_id, stock_decrement, )
+            if book:
+                return {
+                    'status_code': 200,
+                    'response': 'Stock has been successfully decreased'
+                }
         except Exception as e:
             return {
                 'status_code': 500,
